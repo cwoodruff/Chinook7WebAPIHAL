@@ -8,7 +8,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using Hal.AspNetCore;
 
 namespace Chinook.API.Controllers;
 
@@ -17,7 +16,6 @@ namespace Chinook.API.Controllers;
 [ApiController]
 [EnableCors("CorsPolicy")]
 [ApiVersion("1.0")]
-[ServiceFilter(typeof(SupportsHalAttribute))]
 public class AlbumController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;

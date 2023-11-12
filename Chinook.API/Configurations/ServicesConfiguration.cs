@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.HttpLogging;
 using Chinook.Data.Repositories;
 using Chinook.Domain.Enrichers;
 using Chinook.Domain.Helpers;
-using Hal.AspNetCore;
 
 namespace Chinook.API.Configurations;
 
@@ -102,51 +101,6 @@ public static class ServicesConfiguration
         });
     }
 
-    public static void AddIdentity(this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
-
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(jwt =>
-            {
-                var key = Encoding.ASCII.GetBytes(configuration["JwtConfig:Secret"] ?? string.Empty);
-
-                jwt.SaveToken = true;
-                jwt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime = false,
-                    ValidateLifetime = true
-                };
-            });
-
-        services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ChinookContext>();
-    }
-
-    public static void AddVersioning(this IServiceCollection services)
-    {
-        services.AddApiVersioning(options =>
-        {
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            //options.DefaultApiVersion = new ApiVersion( new DateTime( 2020, 9, 22 ) );
-            //options.DefaultApiVersion =
-            //  new ApiVersion(new DateTime( 2020, 9, 22 ), "LetoII", 1, "Beta");
-            options.ReportApiVersions = true;
-            //options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-        });
-    }
-
     public static void AddSwaggerServices(this IServiceCollection services)
     {
         services.AddSwaggerGen();
@@ -179,20 +133,50 @@ public static class ServicesConfiguration
     
     public static void AddRepresentations(this IServiceCollection services)
     {
-        services .AddScoped<AlbumEnricher>()
+        services.AddHttpContextAccessor();
+        
+        services.AddScoped<AlbumEnricher>()
             .AddScoped<IEnricher, AlbumEnricher>()
             .AddScoped<AlbumsEnricher>()
-            .AddScoped<IListEnricher, AlbumsEnricher>();
-        
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            .AddScoped<IListEnricher, AlbumsEnricher>()
+            .AddScoped<ArtistEnricher>()
+            .AddScoped<IEnricher, ArtistEnricher>()
+            .AddScoped<ArtistsEnricher>()
+            .AddScoped<IListEnricher, ArtistsEnricher>()
+            .AddScoped<CustomerEnricher>()
+            .AddScoped<IEnricher, CustomerEnricher>()
+            .AddScoped<CustomersEnricher>()
+            .AddScoped<IListEnricher, CustomersEnricher>()
+            .AddScoped<EmployeeEnricher>()
+            .AddScoped<IEnricher, EmployeeEnricher>()
+            .AddScoped<EmployeesEnricher>()
+            .AddScoped<IListEnricher, EmployeesEnricher>()
+            .AddScoped<GenreEnricher>()
+            .AddScoped<IEnricher, GenreEnricher>()
+            .AddScoped<GenresEnricher>()
+            .AddScoped<IListEnricher, GenresEnricher>()
+            .AddScoped<InvoiceEnricher>()
+            .AddScoped<IEnricher, InvoiceEnricher>()
+            .AddScoped<InvoicesEnricher>()
+            .AddScoped<IListEnricher, InvoicesEnricher>()
+            .AddScoped<InvoiceLineEnricher>()
+            .AddScoped<IEnricher, InvoiceLineEnricher>()
+            .AddScoped<InvoiceLinesEnricher>()
+            .AddScoped<IListEnricher, InvoiceLinesEnricher>()
+            .AddScoped<MediaTypeEnricher>()
+            .AddScoped<IEnricher, MediaTypeEnricher>()
+            .AddScoped<MediaTypesEnricher>()
+            .AddScoped<IListEnricher, MediaTypesEnricher>()
+            .AddScoped<PlaylistEnricher>()
+            .AddScoped<IEnricher, PlaylistEnricher>()
+            .AddScoped<PlaylistsEnricher>()
+            .AddScoped<IListEnricher, PlaylistsEnricher>()
+            .AddScoped<TrackEnricher>()
+            .AddScoped<IEnricher, TrackEnricher>()
+            .AddScoped<TracksEnricher>()
+            .AddScoped<IListEnricher, TracksEnricher>();
 
         services.AddScoped<RepresentationEnricher>();
-        services.AddScoped<ListRepresentationEnricher>();
-    }
-
-    public static void AddHAL(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddHalSupport(configuration.GetSection("hal"));
     }
 }
 

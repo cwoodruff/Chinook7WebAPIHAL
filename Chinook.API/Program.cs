@@ -13,13 +13,10 @@ builder.Services.AddAPILogging();
 builder.Services.AddCORS();
 builder.Services.AddHealthChecks();
 builder.Services.AddCaching(builder.Configuration);
-//builder.Services.AddIdentity(builder.Configuration);
-builder.Services.AddVersioning();
 builder.Services.AddApiExplorer();
 builder.Services.AddSwaggerServices();
 builder.Services.AddProblemDetail();
 builder.Services.AddRepresentations();
-builder.Services.AddHAL(builder.Configuration);
 
 builder.Services.AddControllers(cfg =>
 {

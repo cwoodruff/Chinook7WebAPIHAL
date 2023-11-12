@@ -21,15 +21,15 @@ public class MediaTypeEnricher : Enricher<MediaTypeApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "mediatype",
-            new { id = representation!.Id },
+            "GetMediaTypeById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"MediaType: {representation.Name} #{representation.Id}",
+            Label = $"MediaType: #{representation.Id}",
             Url = url!
         });
 

@@ -21,15 +21,15 @@ public class EmployeeEnricher : Enricher<EmployeeApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "employee",
-            new { id = representation!.Id },
+            "GetEmployeeById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"Employee: {representation.LastName}, {representation.FirstName} #{representation.Id}",
+            Label = $"Employee: #{representation.Id}",
             Url = url!
         });
 

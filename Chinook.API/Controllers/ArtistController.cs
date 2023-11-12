@@ -6,7 +6,6 @@ using Chinook.Domain.Extensions;
 using Chinook.Domain.ProblemDetails;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
-using Hal.AspNetCore;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,6 @@ namespace Chinook.API.Controllers;
 [ApiController]
 [EnableCors("CorsPolicy")]
 [ApiVersion("1.0")]
-[ServiceFilter(typeof(SupportsHalAttribute))]
 public class ArtistController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;

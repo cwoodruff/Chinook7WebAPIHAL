@@ -20,17 +20,17 @@ public class AlbumEnricher : Enricher<AlbumApiModel>
         var httpContext = _accessor.HttpContext;
 
         var url = _linkGenerator.GetUriByName(
-            httpContext!,
-            "album",
-            new { id = representation!.Id },
+            httpContext,
+            "GetAlbumById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
             {
                 Id = representation.Id.ToString(),
-                Label = $"Album: {representation.Title} #{representation.Id}",
-                Url = url!
+                Label = $"Album: #{representation.Id}",
+                Url = url
             });
 
         return Task.CompletedTask;

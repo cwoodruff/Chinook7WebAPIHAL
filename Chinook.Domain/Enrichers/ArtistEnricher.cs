@@ -21,15 +21,15 @@ public class ArtistEnricher : Enricher<ArtistApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "artist",
-            new { id = representation!.Id },
+            "GetArtistById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"Artist: {representation.Name} #{representation.Id}",
+            Label = $"Artist: #{representation.Id}",
             Url = url!
         });
 

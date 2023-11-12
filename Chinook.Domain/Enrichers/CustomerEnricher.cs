@@ -22,15 +22,15 @@ public class CustomerEnricher : Enricher<CustomerApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "customer",
-            new { id = representation!.Id },
+            "GetCustomerById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"Customer: {representation.LastName}, {representation.FirstName} #{representation.Id}",
+            Label = $"Customer: #{representation.Id}",
             Url = url!
         });
 

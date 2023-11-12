@@ -21,15 +21,15 @@ public class TrackEnricher : Enricher<TrackApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "track",
-            new { id = representation!.Id },
+            "GetTrackById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"Track: {representation.Name} #{representation.Id}",
+            Label = $"Track: #{representation.Id}",
             Url = url!
         });
 

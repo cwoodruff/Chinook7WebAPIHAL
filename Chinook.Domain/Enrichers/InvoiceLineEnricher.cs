@@ -21,15 +21,15 @@ public class InvoiceLineEnricher : Enricher<InvoiceLineApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "invoiceline",
-            new { id = representation!.Id },
+            "GetInvoiceLineById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"InvoiceLine: {representation.Id} #{representation.Id}",
+            Label = $"InvoiceLine: #{representation.Id}",
             Url = url!
         });
 

@@ -21,15 +21,15 @@ public class PlaylistEnricher : Enricher<PlaylistApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "playlist",
-            new { id = representation!.Id },
+            "GetPlaylistById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"Playlist: {representation.Name} #{representation.Id}",
+            Label = $"Playlist: #{representation.Id}",
             Url = url!
         });
 

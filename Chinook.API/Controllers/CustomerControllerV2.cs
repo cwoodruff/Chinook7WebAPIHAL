@@ -5,7 +5,6 @@ using Chinook.Domain.ApiModels;
 using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
-using Hal.AspNetCore;
 using Microsoft.AspNetCore.Cors;
 
 namespace Chinook.API.Controllers.V2;
@@ -14,7 +13,6 @@ namespace Chinook.API.Controllers.V2;
 [ApiController]
 [EnableCors("CorsPolicy")]
 [ApiVersion("2.0")]
-[ServiceFilter(typeof(SupportsHalAttribute))]
 public class CustomerController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;

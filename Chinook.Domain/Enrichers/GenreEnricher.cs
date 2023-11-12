@@ -21,15 +21,15 @@ public class GenreEnricher : Enricher<GenreApiModel>
 
         var url = _linkGenerator.GetUriByName(
             httpContext!,
-            "genre",
-            new { id = representation!.Id },
+            "GetGenreById",
+            new { id = representation.Id },
             scheme: "https"
         );
         
         representation.AddLink(new Link
         {
             Id = representation.Id.ToString(),
-            Label = $"genre: {representation.Name} #{representation.Id}",
+            Label = $"genre: #{representation.Id}",
             Url = url!
         });
 
