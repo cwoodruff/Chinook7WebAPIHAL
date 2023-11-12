@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Text.Json;
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -12,7 +10,6 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
-[ApiVersion("1.0")]
 public class EmployeeController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
@@ -26,28 +23,20 @@ public class EmployeeController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<PagedList<EmployeeApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public ActionResult<List<EmployeeApiModel>> Get()
     {
         try
         {
-            var employees = await _chinookSupervisor.GetAllEmployee(pageNumber, pageSize);
+            var employees = _chinookSupervisor.GetAllEmployee();
 
             if (employees.Any())
             {
-                var metadata = new
-                {
-                    employees.TotalCount,
-                    employees.PageSize,
-                    employees.CurrentPage,
-                    employees.TotalPages,
-                    employees.HasNext,
-                    employees.HasPrevious
-                };
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(employees);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
+            }
         }
         catch (Exception ex)
         {
@@ -59,18 +48,20 @@ public class EmployeeController : ControllerBase
 
     [HttpGet("{id}", Name = "GetEmployeeById")]
     [Produces("application/json")]
-    public async Task<ActionResult<EmployeeApiModel>> Get(int id)
+    public ActionResult<EmployeeApiModel> Get(int id)
     {
         try
         {
-            var employee = await _chinookSupervisor.GetEmployeeById(id);
+            var employee = _chinookSupervisor.GetEmployeeById(id);
 
             if (employee != null)
             {
                 return Ok(employee);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "Employee Not Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "Employee Not Found");
+            }
         }
         catch (Exception ex)
         {
@@ -83,7 +74,7 @@ public class EmployeeController : ControllerBase
     [HttpPost]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<EmployeeApiModel>> Post([FromBody] EmployeeApiModel input)
+    public ActionResult<EmployeeApiModel> Post([FromBody] EmployeeApiModel input)
     {
         try
         {
@@ -91,8 +82,10 @@ public class EmployeeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Employee is null");
             }
-
-            return Ok(await _chinookSupervisor.AddEmployee(input));
+            else
+            {
+                return Ok(_chinookSupervisor.AddEmployee(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -111,7 +104,7 @@ public class EmployeeController : ControllerBase
     [HttpPut("{id}")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<EmployeeApiModel>> Put(int id, [FromBody] EmployeeApiModel input)
+    public ActionResult<EmployeeApiModel> Put(int id, [FromBody] EmployeeApiModel input)
     {
         try
         {
@@ -119,8 +112,10 @@ public class EmployeeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Employee is null");
             }
-
-            return Ok(await _chinookSupervisor.UpdateEmployee(input));
+            else
+            {
+                return Ok(_chinookSupervisor.UpdateEmployee(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -137,11 +132,11 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public ActionResult Delete(int id)
     {
         try
         {
-            return Ok(await _chinookSupervisor.DeleteEmployee(id));
+            return Ok(_chinookSupervisor.DeleteEmployee(id));
         }
         catch (Exception ex)
         {
@@ -153,19 +148,21 @@ public class EmployeeController : ControllerBase
 
     [HttpGet("reportsto/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<EmployeeApiModel>> GetReportsTo(int id)
+    public ActionResult<EmployeeApiModel> GetReportsTo(int id)
     {
         try
         {
-            var employee = await _chinookSupervisor.GetEmployeeById(id);
+            var employee = _chinookSupervisor.GetEmployeeById(id);
 
             if (employee != null)
             {
                 return Ok(employee);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound,
-                "No Reporting Employees Could Be Found for the Employee");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound,
+                    "No Reporting Employees Could Be Found for the Employee");
+            }
         }
         catch (Exception ex)
         {
@@ -177,18 +174,20 @@ public class EmployeeController : ControllerBase
 
     [HttpGet("directreports/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<PagedList<EmployeeApiModel>>> GetDirectReports(int id)
+    public ActionResult<List<EmployeeApiModel>> GetDirectReports(int id)
     {
         try
         {
-            var employees = await _chinookSupervisor.GetDirectReports(id);
+            var employees = _chinookSupervisor.GetDirectReports(id);
 
             if (employees.Any())
             {
                 return Ok(employees);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
+            }
         }
         catch (Exception ex)
         {

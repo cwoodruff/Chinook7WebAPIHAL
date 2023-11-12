@@ -4,7 +4,7 @@ namespace Chinook.Domain.Extensions;
 
 public static class ConvertExtensions
 {
-    public static IEnumerable<TTarget> ConvertAll<TTarget>(
+    public static List<TTarget> ConvertAll<TTarget>(
         this IEnumerable<IConvertModel<TTarget>> values)
-        => values.Select(value => value.Convert());
+        => values.Select(value => value.Convert()).ToList();
 }

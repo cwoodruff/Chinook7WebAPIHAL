@@ -1,3 +1,4 @@
+using Chinook.Domain.ApiModels;
 using Chinook.Domain.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,9 +29,9 @@ public class PlaylistEnricher : Enricher<PlaylistApiModel>
         
         representation.AddLink(new Link
         {
-            Id = representation.Id.ToString(),
-            Label = $"Playlist: #{representation.Id}",
-            Url = url!
+            Rel = representation.Id.ToString(),
+            Title = $"Playlist: #{representation.Id}",
+            Href = url!
         });
 
         return Task.CompletedTask;

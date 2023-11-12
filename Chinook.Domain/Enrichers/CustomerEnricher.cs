@@ -1,3 +1,4 @@
+using Chinook.Domain.ApiModels;
 using Chinook.Domain.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -29,9 +30,9 @@ public class CustomerEnricher : Enricher<CustomerApiModel>
         
         representation.AddLink(new Link
         {
-            Id = representation.Id.ToString(),
-            Label = $"Customer: #{representation.Id}",
-            Url = url!
+            Rel = representation.Id.ToString(),
+            Title = $"Customer: #{representation.Id}",
+            Href = url!
         });
 
         return Task.CompletedTask;

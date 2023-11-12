@@ -1,10 +1,14 @@
 ﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
 
 namespace Chinook.Domain.Repositories;
 
-public interface IInvoiceLineRepository : IRepository<InvoiceLine>, IDisposable
+public interface IInvoiceLineRepository : IDisposable
 {
-    Task<PagedList<InvoiceLine>> GetByInvoiceId(int id, int pageNumber, int pageSize);
-    Task<PagedList<InvoiceLine>> GetByTrackId(int id, int pageNumber, int pageSize);
+    List<InvoiceLine> GetAll();
+    InvoiceLine GetById(int id);
+    List<InvoiceLine> GetByInvoiceId(int id);
+    List<InvoiceLine> GetByTrackId(int id);
+    InvoiceLine Add(InvoiceLine newInvoiceLine);
+    bool Update(InvoiceLine invoiceLine);
+    bool Delete(int id);
 }

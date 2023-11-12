@@ -1,3 +1,4 @@
+using Chinook.Domain.ApiModels;
 using Chinook.Domain.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,9 +29,9 @@ public class TrackEnricher : Enricher<TrackApiModel>
         
         representation.AddLink(new Link
         {
-            Id = representation.Id.ToString(),
-            Label = $"Track: #{representation.Id}",
-            Url = url!
+            Rel = representation.Id.ToString(),
+            Title = $"Track: #{representation.Id}",
+            Href = url!
         });
 
         return Task.CompletedTask;

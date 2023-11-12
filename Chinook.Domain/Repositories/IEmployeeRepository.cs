@@ -2,8 +2,13 @@
 
 namespace Chinook.Domain.Repositories;
 
-public interface IEmployeeRepository : IRepository<Employee>, IDisposable
+public interface IEmployeeRepository : IDisposable
 {
-    Task<Employee> GetReportsTo(int id);
-    Task<List<Employee>> GetDirectReports(int id);
+    List<Employee> GetAll();
+    Employee GetById(int id);
+    Employee GetReportsTo(int id);
+    Employee Add(Employee newEmployee);
+    bool Update(Employee employee);
+    bool Delete(int id);
+    List<Employee> GetDirectReports(int id);
 }

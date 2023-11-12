@@ -1,4 +1,5 @@
-﻿using Chinook.Domain.Helpers;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Helpers;
 
 namespace Chinook.Domain.Enrichers;
 

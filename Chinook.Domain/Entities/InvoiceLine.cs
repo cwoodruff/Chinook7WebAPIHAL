@@ -1,9 +1,11 @@
-﻿using Chinook.Domain.Converters;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Converters;
 
 namespace Chinook.Domain.Entities;
 
-public sealed class InvoiceLine : BaseEntity, IConvertModel<InvoiceLineApiModel>
+public sealed class InvoiceLine : IConvertModel<InvoiceLineApiModel>
 {
+    public int Id { get; set; }
     public int InvoiceId { get; set; }
     public int TrackId { get; set; }
     public decimal UnitPrice { get; set; }

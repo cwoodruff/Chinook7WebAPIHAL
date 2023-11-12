@@ -1,11 +1,9 @@
-﻿#nullable disable
+﻿namespace Chinook.Domain.Entities;
 
-namespace Chinook.Domain.Entities
+public partial class AlbumWithArtistName
 {
-    public abstract class AlbumWithArtistName : BaseEntity
-    {
-        public string Title { get; set; }
-        public int ArtistId { get; set; }
-        public string Name { get; set; }
-    }
+    public int AlbumId { get; set; }
+    public string Title { get; set; } = null!;
+    public int ArtistId { get; set; }
+    public string? Name { get; set; }
 }

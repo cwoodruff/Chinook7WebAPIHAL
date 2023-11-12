@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Text.Json;
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -9,10 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chinook.API.Controllers;
 
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
-[ApiVersion("1.0", Deprecated = true)]
 public class CustomerController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
@@ -26,28 +23,20 @@ public class CustomerController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<PagedList<CustomerApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public ActionResult<List<CustomerApiModel>> Get()
     {
         try
         {
-            var customers = await _chinookSupervisor.GetAllCustomer(pageNumber, pageSize);
+            var customers = _chinookSupervisor.GetAllCustomer();
 
             if (customers.Any())
             {
-                var metadata = new
-                {
-                    customers.TotalCount,
-                    customers.PageSize,
-                    customers.CurrentPage,
-                    customers.TotalPages,
-                    customers.HasNext,
-                    customers.HasPrevious
-                };
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(customers);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "No Customers Could Be Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "No Customers Could Be Found");
+            }
         }
         catch (Exception ex)
         {
@@ -59,18 +48,20 @@ public class CustomerController : ControllerBase
 
     [HttpGet("{id}", Name = "GetCustomerById")]
     [Produces("application/json")]
-    public async Task<ActionResult<CustomerApiModel>> Get(int id)
+    public ActionResult<CustomerApiModel> Get(int id)
     {
         try
         {
-            var customer = await _chinookSupervisor.GetCustomerById(id);
+            var customer = _chinookSupervisor.GetCustomerById(id);
 
             if (customer != null)
             {
                 return Ok(customer);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "Customer Not Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "Customer Not Found");
+            }
         }
         catch (Exception ex)
         {
@@ -83,7 +74,7 @@ public class CustomerController : ControllerBase
     [HttpPost]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<CustomerApiModel>> Post([FromBody] CustomerApiModel input)
+    public ActionResult<CustomerApiModel> Post([FromBody] CustomerApiModel input)
     {
         try
         {
@@ -91,8 +82,10 @@ public class CustomerController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Customer is null");
             }
-
-            return Ok(await _chinookSupervisor.AddCustomer(input));
+            else
+            {
+                return Ok(_chinookSupervisor.AddCustomer(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -111,7 +104,7 @@ public class CustomerController : ControllerBase
     [HttpPut("{id}")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<CustomerApiModel>> Put(int id, [FromBody] CustomerApiModel input)
+    public ActionResult<CustomerApiModel> Put(int id, [FromBody] CustomerApiModel input)
     {
         try
         {
@@ -119,8 +112,10 @@ public class CustomerController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Customer is null");
             }
-
-            return Ok(await _chinookSupervisor.UpdateCustomer(input));
+            else
+            {
+                return Ok(_chinookSupervisor.UpdateCustomer(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -137,11 +132,11 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public ActionResult Delete(int id)
     {
         try
         {
-            return Ok(await _chinookSupervisor.DeleteCustomer(id));
+            return Ok(_chinookSupervisor.DeleteCustomer(id));
         }
         catch (Exception ex)
         {
@@ -153,18 +148,20 @@ public class CustomerController : ControllerBase
 
     [HttpGet("supportrep/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<EmployeeApiModel>> GetBySupportRepId(int id)
+    public ActionResult<EmployeeApiModel> GetBySupportRepId(int id)
     {
         try
         {
-            var employee = await _chinookSupervisor.GetEmployeeById(id);
+            var employee = _chinookSupervisor.GetEmployeeById(id);
 
             if (employee != null)
             {
                 return Ok(employee);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "No Support Rep Could Be Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "No Support Rep Could Be Found");
+            }
         }
         catch (Exception ex)
         {

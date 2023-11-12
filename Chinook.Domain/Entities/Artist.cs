@@ -1,14 +1,16 @@
-﻿using Chinook.Domain.Converters;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Converters;
 
 namespace Chinook.Domain.Entities;
 
-public sealed class Artist : BaseEntity, IConvertModel<ArtistApiModel>
+public sealed class Artist : IConvertModel<ArtistApiModel>
 {
     public Artist()
     {
         Albums = new HashSet<Album>();
     }
 
+    public int Id { get; set; }
     public string? Name { get; set; }
 
     public ICollection<Album>? Albums { get; set; }

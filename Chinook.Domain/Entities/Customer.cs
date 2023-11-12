@@ -1,14 +1,16 @@
-﻿using Chinook.Domain.Converters;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Converters;
 
 namespace Chinook.Domain.Entities;
 
-public sealed class Customer : BaseEntity, IConvertModel<CustomerApiModel>
+public sealed class Customer : IConvertModel<CustomerApiModel>
 {
     public Customer()
     {
         Invoices = new HashSet<Invoice>();
     }
 
+    public int Id { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Company { get; set; }

@@ -3,20 +3,15 @@ using Chinook.Domain.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddConnectionProvider(builder.Configuration);
 builder.Services.AddAppSettings(builder.Configuration);
+builder.Services.AddConnectionProvider(builder.Configuration);
 builder.Services.ConfigureRepositories();
 builder.Services.ConfigureSupervisor();
-builder.Services.ConfigureValidators();
 builder.Services.AddAPILogging();
 builder.Services.AddCORS();
-builder.Services.AddHealthChecks();
+builder.Services.ConfigureValidators();
 builder.Services.AddCaching(builder.Configuration);
-builder.Services.AddApiExplorer();
-builder.Services.AddSwaggerServices();
-builder.Services.AddProblemDetail();
-builder.Services.AddRepresentations();
+builder.Services.AddHypermedia();
 
 builder.Services.AddControllers(cfg =>
 {
@@ -24,17 +19,16 @@ builder.Services.AddControllers(cfg =>
 });
 
 var app = builder.Build();
+
 app.UseHttpLogging();
 app.UseHttpsRedirection();
+
 app.UseCors();
-//app.UseAuthorization();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseResponseCaching();
+
+app.UseHttpsRedirection();
+
 app.MapControllers();
 
 app.Run();
-
-public partial class Program { }

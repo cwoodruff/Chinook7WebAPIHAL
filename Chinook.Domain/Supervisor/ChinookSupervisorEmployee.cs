@@ -1,3 +1,5 @@
+using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -6,26 +8,26 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<PagedList<EmployeeApiModel>> GetAllEmployee(int pageNumber, int pageSize)
+    public List<EmployeeApiModel> GetAllEmployee()
     {
-        var employees = await _employeeRepository!.GetAll(pageNumber, pageSize);
-        var employeeApiModels = employees.ConvertAll().ToList();
+        List<Employee> employees = _employeeRepository.GetAll();
+        var employeeApiModels = employees.ConvertAll();
 
         foreach (var employee in employeeApiModels)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Employee-", employee.Id), employee, (TimeSpan)cacheEntryOptions);
+            ;
+            _cache.Set(string.Concat("Employee-", employee.Id), employee, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new PagedList<EmployeeApiModel>(employeeApiModels, employees.TotalCount, employees.CurrentPage, employees.PageSize);
-        return newPagedList;
+
+        return employeeApiModels;
     }
 
-    public async Task<EmployeeApiModel?> GetEmployeeById(int id)
+    public EmployeeApiModel? GetEmployeeById(int id)
     {
-        var employeeApiModelCached = _cache!.Get<EmployeeApiModel>(string.Concat("Employee-", id));
+        var employeeApiModelCached = _cache.Get<EmployeeApiModel>(string.Concat("Employee-", id));
 
         if (employeeApiModelCached != null)
         {
@@ -33,45 +35,43 @@ public partial class ChinookSupervisor
         }
         else
         {
-            var employee = await _employeeRepository!.GetById(id);
-            if (employee == null) return null;
+            var employee = _employeeRepository.GetById(id);
             var employeeApiModel = employee.Convert();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Employee-", employeeApiModel.Id), employeeApiModel,
+            ;
+            _cache.Set(string.Concat("Employee-", employeeApiModel.Id), employeeApiModel,
                 (TimeSpan)cacheEntryOptions);
 
             return employeeApiModel;
         }
     }
 
-    public async Task<EmployeeApiModel?> GetEmployeeReportsTo(int id)
+    public EmployeeApiModel? GetEmployeeReportsTo(int id)
     {
-        var employee = await _employeeRepository!.GetReportsTo(id);
+        var employee = _employeeRepository.GetReportsTo(id);
         return employee.Convert();
     }
 
-    public async Task<EmployeeApiModel> AddEmployee(EmployeeApiModel newEmployeeApiModel)
+    public EmployeeApiModel AddEmployee(EmployeeApiModel newEmployeeApiModel)
     {
-        await _employeeValidator.ValidateAndThrowAsync(newEmployeeApiModel);
+        _employeeValidator.ValidateAndThrowAsync(newEmployeeApiModel);
 
         var employee = newEmployeeApiModel.Convert();
 
-        employee = await _employeeRepository!.Add(employee);
+        employee = _employeeRepository.Add(employee);
         newEmployeeApiModel.Id = employee.Id;
         return newEmployeeApiModel;
     }
 
-    public async Task<bool> UpdateEmployee(EmployeeApiModel employeeApiModel)
+    public bool UpdateEmployee(EmployeeApiModel employeeApiModel)
     {
-        await _employeeValidator.ValidateAndThrowAsync(employeeApiModel);
+        _employeeValidator.ValidateAndThrowAsync(employeeApiModel);
 
-        var employee = await _employeeRepository!.GetById(employeeApiModel.Id);
-
-        if (employee == null) return false;
+        var employee = _employeeRepository.GetById(employeeApiModel.Id);
+        
         employee.Id = employeeApiModel.Id;
         employee.LastName = employeeApiModel.LastName;
         employee.FirstName = employeeApiModel.FirstName;
@@ -88,21 +88,21 @@ public partial class ChinookSupervisor
         employee.Fax = employeeApiModel.Fax ?? string.Empty;
         employee.Email = employeeApiModel.Email ?? string.Empty;
 
-        return await _employeeRepository.Update(employee);
+        return _employeeRepository.Update(employee);
     }
 
-    public Task<bool> DeleteEmployee(int id)
-        => _employeeRepository!.Delete(id);
+    public bool DeleteEmployee(int id)
+        => _employeeRepository.Delete(id);
 
-    public async Task<IEnumerable<EmployeeApiModel>> GetEmployeeDirectReports(int id)
+    public List<EmployeeApiModel> GetEmployeeDirectReports(int id)
     {
-        var employees = await _employeeRepository!.GetDirectReports(id);
+        var employees = _employeeRepository.GetDirectReports(id);
         return employees.ConvertAll();
     }
 
-    public async Task<IEnumerable<EmployeeApiModel>> GetDirectReports(int id)
+    public List<EmployeeApiModel> GetDirectReports(int id)
     {
-        var employees = await _employeeRepository!.GetDirectReports(id);
+        var employees = _employeeRepository.GetDirectReports(id);
         return employees.ConvertAll();
     }
 }

@@ -1,14 +1,18 @@
 ﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
 
 namespace Chinook.Domain.Repositories;
 
-public interface ITrackRepository : IRepository<Track>, IDisposable
+public interface ITrackRepository : IDisposable
 {
-    Task<PagedList<Track>> GetByAlbumId(int id, int pageNumber, int pageSize);
-    Task<PagedList<Track>> GetByGenreId(int id, int pageNumber, int pageSize);
-    Task<PagedList<Track>> GetByMediaTypeId(int id, int pageNumber, int pageSize);
-    Task<PagedList<Track>> GetByInvoiceId(int id, int pageNumber, int pageSize);
-    Task<PagedList<Track>> GetByPlaylistId(int id, int pageNumber, int pageSize);
-    Task<PagedList<Track>> GetByArtistId(int id, int pageNumber, int pageSize);
+    List<Track> GetAll();
+    Track GetById(int id);
+    List<Track> GetByAlbumId(int id);
+    List<Track> GetByGenreId(int id);
+    List<Track> GetByMediaTypeId(int id);
+    Track Add(Track newTrack);
+    bool Update(Track track);
+    bool Delete(int id);
+    List<Track> GetByInvoiceId(int id);
+    List<Track> GetByPlaylistId(int id);
+    List<Track> GetByArtistId(int id);
 }

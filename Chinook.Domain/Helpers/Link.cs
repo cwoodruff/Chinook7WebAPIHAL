@@ -2,7 +2,23 @@
 
 public class Link
 {
-    public string Id { get; set; }
-    public string Label { get; set; }
-    public string Url { get; set; }
+    public string Rel { get; set; }
+    public string Title { get; set; }
+    public string Href { get; set; }
+    
+    public Link(string rel, string href, string title = null)
+    {
+        Rel = rel;
+        Href = href;
+        Title = title;
+    }
+
+    public Link()
+    {
+    }
+
+    public override string ToString()
+    {
+        return Href;
+    }
 }

@@ -1,8 +1,9 @@
-﻿using Chinook.Domain.Converters;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Converters;
 
 namespace Chinook.Domain.Entities;
 
-public sealed class Employee : BaseEntity, IConvertModel<EmployeeApiModel>
+public sealed class Employee : IConvertModel<EmployeeApiModel>
 {
     public Employee()
     {
@@ -10,6 +11,7 @@ public sealed class Employee : BaseEntity, IConvertModel<EmployeeApiModel>
         InverseReportsToNavigation = new HashSet<Employee>();
     }
 
+    public int Id { get; set; }
     public string? LastName { get; set; }
     public string? FirstName { get; set; }
     public string? Title { get; set; }

@@ -1,3 +1,5 @@
+using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -6,26 +8,26 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<PagedList<PlaylistApiModel>> GetAllPlaylist(int pageNumber, int pageSize)
+    public List<PlaylistApiModel> GetAllPlaylist()
     {
-        var playlists = await _playlistRepository!.GetAll(pageNumber, pageSize);
-        var playlistApiModels = playlists.ConvertAll().ToList();
+        List<Playlist> playlists = _playlistRepository.GetAll();
+        var playlistApiModels = playlists.ConvertAll();
 
         foreach (var playList in playlistApiModels)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Playlist-", playList.Id), playList, (TimeSpan)cacheEntryOptions);
+            ;
+            _cache.Set(string.Concat("Playlist-", playList.Id), playList, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new PagedList<PlaylistApiModel>(playlistApiModels, playlists.TotalCount, playlists.CurrentPage, playlists.PageSize);
-        return newPagedList;
+
+        return playlistApiModels;
     }
 
-    public async Task<PlaylistApiModel> GetPlaylistById(int id)
+    public PlaylistApiModel GetPlaylistById(int id)
     {
-        var playListApiModelCached = _cache!.Get<PlaylistApiModel>(string.Concat("Playlist-", id));
+        var playListApiModelCached = _cache.Get<PlaylistApiModel>(string.Concat("Playlist-", id));
 
         if (playListApiModelCached != null)
         {
@@ -33,45 +35,44 @@ public partial class ChinookSupervisor
         }
         else
         {
-            var playlist = await _playlistRepository!.GetById(id);
-            if (playlist == null) return null!;
+            var playlist = _playlistRepository.GetById(id);
             var playlistApiModel = playlist.Convert();
-            //playlistApiModel.Tracks = (await GetTrackByMediaTypeId(playlistApiModel.Id)).ToList();
+            playlistApiModel.Tracks = (GetTrackByMediaTypeId(playlistApiModel.Id)).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Playlist-", playlistApiModel.Id), playlistApiModel,
+            ;
+            _cache.Set(string.Concat("Playlist-", playlistApiModel.Id), playlistApiModel,
                 (TimeSpan)cacheEntryOptions);
 
             return playlistApiModel;
         }
     }
 
-    public async Task<PlaylistApiModel> AddPlaylist(PlaylistApiModel newPlaylistApiModel)
+    public PlaylistApiModel AddPlaylist(PlaylistApiModel newPlaylistApiModel)
     {
-        await _playlistValidator.ValidateAndThrowAsync(newPlaylistApiModel);
+        _playlistValidator.ValidateAndThrowAsync(newPlaylistApiModel);
 
         var playlist = newPlaylistApiModel.Convert();
 
-        playlist = await _playlistRepository!.Add(playlist);
+        playlist = _playlistRepository.Add(playlist);
         newPlaylistApiModel.Id = playlist.Id;
         return newPlaylistApiModel;
     }
 
-    public async Task<bool> UpdatePlaylist(PlaylistApiModel playlistApiModel)
+    public bool UpdatePlaylist(PlaylistApiModel playlistApiModel)
     {
-        await _playlistValidator.ValidateAndThrowAsync(playlistApiModel);
+        _playlistValidator.ValidateAndThrowAsync(playlistApiModel);
 
-        var playlist = await _playlistRepository!.GetById(playlistApiModel.Id);
-
-        if (playlist == null) return false;
+        var playlist = _playlistRepository.GetById(playlistApiModel.Id);
+        
         playlist.Id = playlistApiModel.Id;
         playlist.Name = playlistApiModel.Name ?? string.Empty;
 
-        return await _playlistRepository!.Update(playlist);
+        return _playlistRepository.Update(playlist);
     }
 
-    public Task<bool> DeletePlaylist(int id) => _playlistRepository!.Delete(id);
+    public bool DeletePlaylist(int id)
+        => _playlistRepository.Delete(id);
 }

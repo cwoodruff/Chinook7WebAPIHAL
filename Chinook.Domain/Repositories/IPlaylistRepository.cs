@@ -1,9 +1,13 @@
 ﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
 
 namespace Chinook.Domain.Repositories;
 
-public interface IPlaylistRepository : IRepository<Playlist>, IDisposable
+public interface IPlaylistRepository : IDisposable
 {
-    Task<PagedList<Playlist>> GetByTrackId(int id, int pageNumber, int pageSize);
+    List<Playlist> GetAll();
+    Playlist GetById(int id);
+    Playlist Add(Playlist newPlaylist);
+    bool Update(Playlist playlist);
+    bool Delete(int id);
+    List<Playlist> GetByTrackId(int id);
 }

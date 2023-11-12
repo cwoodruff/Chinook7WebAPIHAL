@@ -1,14 +1,16 @@
-﻿using Chinook.Domain.Converters;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Converters;
 
 namespace Chinook.Domain.Entities;
 
-public class Track : BaseEntity, IConvertModel<TrackApiModel>
+public class Track : IConvertModel<TrackApiModel>
 {
     public Track()
     {
         InvoiceLines = new HashSet<InvoiceLine>();
     }
 
+    public int Id { get; set; }
     public string? Name { get; set; }
     public int AlbumId { get; set; }
     public int MediaTypeId { get; set; }

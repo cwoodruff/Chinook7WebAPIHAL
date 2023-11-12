@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Chinook.Domain.Entities;
 
-namespace Chinook.Data;
+namespace Chinook.Data.Data;
 
 public partial class ChinookContext : DbContext
 {
@@ -11,6 +14,7 @@ public partial class ChinookContext : DbContext
     }
 
     public virtual DbSet<Album> Albums { get; set; } = null!;
+    public virtual DbSet<AlbumWithArtistName> AlbumWithArtistNames { get; set; } = null!;
     public virtual DbSet<Artist> Artists { get; set; } = null!;
     public virtual DbSet<Customer> Customers { get; set; } = null!;
     public virtual DbSet<Employee> Employees { get; set; } = null!;
@@ -20,10 +24,6 @@ public partial class ChinookContext : DbContext
     public virtual DbSet<MediaType> MediaTypes { get; set; } = null!;
     public virtual DbSet<Playlist> Playlists { get; set; } = null!;
     public virtual DbSet<Track> Tracks { get; set; } = null!;
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +42,17 @@ public partial class ChinookContext : DbContext
                 .HasForeignKey(d => d.ArtistId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Album__ArtistId__276EDEB3");
+        });
+
+        modelBuilder.Entity<AlbumWithArtistName>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.ToView("AlbumWithArtistName");
+
+            entity.Property(e => e.Name).HasMaxLength(120);
+
+            entity.Property(e => e.Title).HasMaxLength(160);
         });
 
         modelBuilder.Entity<Artist>(entity =>

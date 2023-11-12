@@ -1,4 +1,4 @@
-namespace Chinook.API.Configurations;
+﻿namespace Chinook.API.Configurations;
 
 public abstract class AppSettings
 {

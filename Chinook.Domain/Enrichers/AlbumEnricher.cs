@@ -1,4 +1,5 @@
-﻿using Chinook.Domain.Helpers;
+﻿using Chinook.Domain.ApiModels;
+using Chinook.Domain.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -28,9 +29,9 @@ public class AlbumEnricher : Enricher<AlbumApiModel>
         
         representation.AddLink(new Link
             {
-                Id = representation.Id.ToString(),
-                Label = $"Album: #{representation.Id}",
-                Url = url
+                Rel = representation.Id.ToString(),
+                Title = $"Album: #{representation.Id}",
+                Href = url
             });
 
         return Task.CompletedTask;

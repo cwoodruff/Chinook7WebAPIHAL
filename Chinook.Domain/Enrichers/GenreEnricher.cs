@@ -1,3 +1,4 @@
+using Chinook.Domain.ApiModels;
 using Chinook.Domain.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,9 +29,9 @@ public class GenreEnricher : Enricher<GenreApiModel>
         
         representation.AddLink(new Link
         {
-            Id = representation.Id.ToString(),
-            Label = $"genre: #{representation.Id}",
-            Url = url!
+            Rel = representation.Id.ToString(),
+            Title = $"genre: #{representation.Id}",
+            Href = url!
         });
 
         return Task.CompletedTask;

@@ -1,3 +1,4 @@
+using Chinook.Domain.ApiModels;
 using FluentValidation;
 
 namespace Chinook.Domain.Validation;

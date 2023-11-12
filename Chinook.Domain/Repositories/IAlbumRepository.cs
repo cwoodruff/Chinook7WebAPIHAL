@@ -1,9 +1,13 @@
-﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
+using Chinook.Domain.Entities;
 
 namespace Chinook.Domain.Repositories;
 
-public interface IAlbumRepository : IRepository<Album>, IDisposable
+public interface IAlbumRepository : IDisposable
 {
-    Task<PagedList<Album>> GetByArtistId(int id, int pageNumber, int pageSize);
+    List<Album> GetAll();
+    Album GetById(int id);
+    List<Album> GetByArtistId(int id);
+    Album Add(Album newAlbum);
+    bool Update(Album album);
+    bool Delete(int id);
 }

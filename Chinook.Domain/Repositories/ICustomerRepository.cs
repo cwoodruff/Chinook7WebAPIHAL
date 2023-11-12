@@ -1,9 +1,13 @@
 ﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
 
 namespace Chinook.Domain.Repositories;
 
-public interface ICustomerRepository : IRepository<Customer>, IDisposable
+public interface ICustomerRepository : IDisposable
 {
-    Task<PagedList<Customer>> GetBySupportRepId(int id, int pageNumber, int pageSize);
+    List<Customer> GetAll();
+    Customer GetById(int id);
+    List<Customer> GetBySupportRepId(int id);
+    Customer Add(Customer newCustomer);
+    bool Update(Customer customer);
+    bool Delete(int id);
 }

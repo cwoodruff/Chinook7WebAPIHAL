@@ -1,24 +1,13 @@
-using System.Text;
-using Chinook.Data;
-using Chinook.Domain.ApiModels;
 using Chinook.Domain.Repositories;
 using Chinook.Domain.Supervisor;
+using Chinook.Data.Repositories;
+using Chinook.Domain.ApiModels;
+using Chinook.Domain.Enrichers;
+using Chinook.Domain.Helpers;
 using Chinook.Domain.Validation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Hellang.Middleware.ProblemDetails;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.HttpLogging;
-using Chinook.Data.Repositories;
-using Chinook.Domain.Enrichers;
-using Chinook.Domain.Helpers;
 
 namespace Chinook.API.Configurations;
 
@@ -49,7 +38,7 @@ public static class ServicesConfiguration
             .AddConsole()
             .AddFilter(level => level >= LogLevel.Information)
         );
-        
+    
         services.AddHttpLogging(logging =>
         {
             // Customize HTTP logging.
@@ -62,9 +51,20 @@ public static class ServicesConfiguration
         });
     }
 
+    public static void AddCORS(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+        });
+    }
+
     public static void ConfigureValidators(this IServiceCollection services)
     {
-        services.AddFluentValidationAutoValidation()
+        services.AddFluentValidation()
             .AddTransient<IValidator<AlbumApiModel>, AlbumValidator>()
             .AddTransient<IValidator<ArtistApiModel>, ArtistValidator>()
             .AddTransient<IValidator<CustomerApiModel>, CustomerValidator>()
@@ -75,17 +75,6 @@ public static class ServicesConfiguration
             .AddTransient<IValidator<MediaTypeApiModel>, MediaTypeValidator>()
             .AddTransient<IValidator<PlaylistApiModel>, PlaylistValidator>()
             .AddTransient<IValidator<TrackApiModel>, TrackValidator>();
-    }
-
-    public static void AddCORS(this IServiceCollection services)
-    {
-        services.AddCors(options =>
-        {
-            options.AddPolicy("CorsPolicy",
-                builder => builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-        });
     }
 
     public static void AddCaching(this IServiceCollection services,
@@ -100,38 +89,8 @@ public static class ServicesConfiguration
             options.TableName = "ChinookCache";
         });
     }
-
-    public static void AddSwaggerServices(this IServiceCollection services)
-    {
-        services.AddSwaggerGen();
-        services.ConfigureOptions<ConfigureSwaggerOptions>();
-    }
-
-    public static void AddApiExplorer(this IServiceCollection services)
-    {
-        services.AddVersionedApiExplorer(setup =>
-        {
-            setup.GroupNameFormat = "'v'VVV";
-            setup.SubstituteApiVersionInUrl = true;
-        });
-    }
-
-    public static void AddProblemDetail(this IServiceCollection services)
-    {
-        services.AddProblemDetails(opts =>
-            {
-                // Control when an exception is included
-                opts.IncludeExceptionDetails = (ctx, _) =>
-                {
-                    // Fetch services from HttpContext.RequestServices
-                    var env = ctx.RequestServices.GetRequiredService<IHostEnvironment>();
-                    return env.IsDevelopment() || env.IsStaging();
-                };
-            }
-        );
-    }
     
-    public static void AddRepresentations(this IServiceCollection services)
+    public static void AddHypermedia(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
         
@@ -177,61 +136,5 @@ public static class ServicesConfiguration
             .AddScoped<IListEnricher, TracksEnricher>();
 
         services.AddScoped<RepresentationEnricher>();
-    }
-}
-
-public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
-{
-    private readonly IApiVersionDescriptionProvider provider;
-
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
-    {
-        this.provider = provider;
-    }
-
-    public void Configure(SwaggerGenOptions options)
-    {
-        // add swagger document for every API version discovered
-        foreach (var description in provider.ApiVersionDescriptions)
-        {
-            options.SwaggerDoc(
-                description.GroupName,
-                CreateVersionInfo(description));
-            options.EnableAnnotations();
-        }
-    }
-
-    public void Configure(string? name, SwaggerGenOptions options)
-    {
-        Configure(options);
-    }
-
-    private OpenApiInfo CreateVersionInfo(ApiVersionDescription description)
-    {
-        var info = new OpenApiInfo()
-        {
-            Version = "v1",
-            Title = "Chinook Music Store API",
-            Description = "A simple example ASP.NET Core Web API",
-            TermsOfService = new Uri("https://example.com/terms"),
-            Contact = new OpenApiContact
-            {
-                Name = "Chris Woodruff",
-                Email = string.Empty,
-                Url = new Uri("https://chriswoodruff.com")
-            },
-            License = new OpenApiLicense
-            {
-                Name = "Use under MIT",
-                Url = new Uri("https://opensource.org/licenses/MIT")
-            }
-        };
-
-        if (description.IsDeprecated)
-        {
-            info.Description += " This API version has been deprecated.";
-        }
-
-        return info;
     }
 }

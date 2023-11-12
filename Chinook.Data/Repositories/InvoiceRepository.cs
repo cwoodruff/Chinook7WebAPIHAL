@@ -1,27 +1,68 @@
-﻿using Chinook.Domain.Entities;
-using Chinook.Domain.Extensions;
+﻿using Chinook.Data.Data;
+using Chinook.Domain.Entities;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class InvoiceRepository : BaseRepository<Invoice>, IInvoiceRepository
+/// <summary>
+/// The invoice repository.
+/// </summary>
+public class InvoiceRepository : IInvoiceRepository
 {
-    public InvoiceRepository(ChinookContext context) : base(context)
+    /// <summary>
+    /// The _context.
+    /// </summary>
+    private readonly ChinookContext _context;
+
+    public InvoiceRepository(ChinookContext context)
     {
+        _context = context;
     }
+
+    private bool InvoiceExists(int id) =>
+        _context.Invoices.Any(i => i.Id == id);
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<PagedList<Invoice>> GetByEmployeeId(int id, int pageNumber, int pageSize) =>
-        await PagedList<Invoice>.ToPagedListAsync(_context.Customers.Where(a => a.SupportRepId == id).SelectMany(t => t.Invoices!)
-                .AsNoTrackingWithIdentityResolution(),
-            pageNumber,
-            pageSize);
+    public List<Invoice> GetAll()
+    {
+        var invoices = _context.Invoices;
+        return invoices.AsNoTrackingWithIdentityResolution().ToList();
+    }
 
-    public async Task<PagedList<Invoice>> GetByCustomerId(int id, int pageNumber, int pageSize) =>
-        await PagedList<Invoice>.ToPagedListAsync(_context.Invoices.Where(a => a.CustomerId == id)
-                .AsNoTrackingWithIdentityResolution(),
-            pageNumber,
-            pageSize);
+    public Invoice GetById(int id) =>
+        _context.Invoices.Find(id);
+
+    public Invoice Add(Invoice newInvoice)
+    {
+        _context.Invoices.Add(newInvoice);
+        _context.SaveChanges();
+        return newInvoice;
+    }
+
+    public bool Update(Invoice invoice)
+    {
+        if (!InvoiceExists(invoice.Id))
+            return false;
+        _context.Invoices.Update(invoice);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public bool Delete(int id)
+    {
+        if (!InvoiceExists(id))
+            return false;
+        var toRemove = _context.Invoices.Find(id);
+        _context.Invoices.Remove(toRemove);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public List<Invoice> GetByEmployeeId(int id) =>
+        _context.Customers.Where(a => a.SupportRepId == 5).SelectMany(t => t.Invoices).AsNoTrackingWithIdentityResolution().ToList();
+
+    public List<Invoice> GetByCustomerId(int id) =>
+        _context.Invoices.Where(i => i.CustomerId == id).AsNoTrackingWithIdentityResolution().ToList();
 }

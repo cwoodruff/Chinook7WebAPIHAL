@@ -1,3 +1,5 @@
+using Chinook.Domain.ApiModels;
+using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -6,26 +8,26 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<PagedList<ArtistApiModel>> GetAllArtist(int pageNumber, int pageSize)
+    public List<ArtistApiModel> GetAllArtist()
     {
-        var artists = await _artistRepository!.GetAll(pageNumber, pageSize);
-        var artistApiModels = artists.ConvertAll().ToList();
+        List<Artist> artists = _artistRepository.GetAll();
+        var artistApiModels = artists.ConvertAll();
 
         foreach (var artist in artistApiModels)
         {
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Artist-", artist.Id), artist, (TimeSpan)cacheEntryOptions);
+            ;
+            _cache.Set(string.Concat("Artist-", artist.Id), artist, (TimeSpan)cacheEntryOptions);
         }
-        var newPagedList = new PagedList<ArtistApiModel>(artistApiModels, artists.TotalCount, artists.CurrentPage, artists.PageSize);
-        return newPagedList;
+
+        return artistApiModels;
     }
 
-    public async Task<ArtistApiModel> GetArtistById(int id)
+    public ArtistApiModel GetArtistById(int id)
     {
-        var artistApiModelCached = _cache!.Get<ArtistApiModel>(string.Concat("Artist-", id));
+        var artistApiModelCached = _cache.Get<ArtistApiModel>(string.Concat("Artist-", id));
 
         if (artistApiModelCached != null)
         {
@@ -33,45 +35,43 @@ public partial class ChinookSupervisor
         }
         else
         {
-            var artist = await _artistRepository!.GetById(id);
-            if (artist == null) return null!;
+            var artist = _artistRepository.GetById(id);
             var artistApiModel = artist.Convert();
-            //artistApiModel.Albums = (await _albumRepository.GetByArtistId(artist.Id)).ConvertAll().ToList();
+            artistApiModel.Albums = (_albumRepository.GetByArtistId(artist.Id)).ConvertAll().ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
                     .AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(604800);
-
-            _cache!.Set(string.Concat("Artist-", artistApiModel.Id), artistApiModel, (TimeSpan)cacheEntryOptions);
+            ;
+            _cache.Set(string.Concat("Artist-", artistApiModel.Id), artistApiModel, (TimeSpan)cacheEntryOptions);
 
             return artistApiModel;
         }
     }
 
-    public async Task<ArtistApiModel> AddArtist(ArtistApiModel newArtistApiModel)
+    public ArtistApiModel AddArtist(ArtistApiModel newArtistApiModel)
     {
-        await _artistValidator.ValidateAndThrowAsync(newArtistApiModel);
+        _artistValidator.ValidateAndThrowAsync(newArtistApiModel);
 
         var artist = newArtistApiModel.Convert();
 
-        artist = await _artistRepository!.Add(artist);
+        artist = _artistRepository.Add(artist);
         newArtistApiModel.Id = artist.Id;
         return newArtistApiModel;
     }
 
-    public async Task<bool> UpdateArtist(ArtistApiModel artistApiModel)
+    public bool UpdateArtist(ArtistApiModel artistApiModel)
     {
-        await _artistValidator.ValidateAndThrowAsync(artistApiModel);
+        _artistValidator.ValidateAndThrowAsync(artistApiModel);
 
-        var artist = await _artistRepository!.GetById(artistApiModel.Id);
-
-        if (artist == null) return false;
+        var artist = _artistRepository.GetById(artistApiModel.Id);
+        
         artist.Id = artistApiModel.Id;
         artist.Name = artistApiModel.Name ?? string.Empty;
 
-        return await _artistRepository.Update(artist);
+        return _artistRepository.Update(artist);
     }
 
-    public Task<bool> DeleteArtist(int id)
-        => _artistRepository!.Delete(id);
+    public bool DeleteArtist(int id)
+        => _artistRepository.Delete(id);
 }

@@ -6,7 +6,7 @@ public abstract class Representation : IRepresentation
 
     public Representation AddLink(Link link)
     {
-        var exists = Links.FirstOrDefault(x => x.Id == link.Id);
+        var exists = Links.FirstOrDefault(x => x.Rel == link.Rel);
         if (exists != null)
         {
             Links.Remove(exists);

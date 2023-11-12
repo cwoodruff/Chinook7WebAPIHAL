@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Text.Json;
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -12,8 +10,6 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
-[ResponseCache(Duration = 604800)]
-[ApiVersion("1.0")]
 public class MediaTypeController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
@@ -27,28 +23,20 @@ public class MediaTypeController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<PagedList<MediaTypeApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public ActionResult<List<MediaTypeApiModel>> Get()
     {
         try
         {
-            var mediaTypes = await _chinookSupervisor.GetAllMediaType(pageNumber, pageSize);
+            var mediaTypes = _chinookSupervisor.GetAllMediaType();
 
             if (mediaTypes.Any())
             {
-                var metadata = new
-                {
-                    mediaTypes.TotalCount,
-                    mediaTypes.PageSize,
-                    mediaTypes.CurrentPage,
-                    mediaTypes.TotalPages,
-                    mediaTypes.HasNext,
-                    mediaTypes.HasPrevious
-                };
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(mediaTypes);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "No MediaType Could Be Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "No MediaType Could Be Found");
+            }
         }
         catch (Exception ex)
         {
@@ -60,18 +48,20 @@ public class MediaTypeController : ControllerBase
 
     [HttpGet("{id}", Name = "GetMediaTypeById")]
     [Produces("application/json")]
-    public async Task<ActionResult<MediaTypeApiModel>> Get(int id)
+    public ActionResult<MediaTypeApiModel> Get(int id)
     {
         try
         {
-            var mediaType = await _chinookSupervisor.GetMediaTypeById(id);
+            var mediaType = _chinookSupervisor.GetMediaTypeById(id);
 
             if (mediaType != null)
             {
                 return Ok(mediaType);
             }
-
-            return StatusCode((int)HttpStatusCode.NotFound, "MediaType Not Found");
+            else
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "MediaType Not Found");
+            }
         }
         catch (Exception ex)
         {
@@ -84,7 +74,7 @@ public class MediaTypeController : ControllerBase
     [HttpPost]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<MediaTypeApiModel>> Post([FromBody] MediaTypeApiModel input)
+    public ActionResult<MediaTypeApiModel> Post([FromBody] MediaTypeApiModel input)
     {
         try
         {
@@ -92,8 +82,10 @@ public class MediaTypeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given MediaType is null");
             }
-
-            return Ok(await _chinookSupervisor.AddMediaType(input));
+            else
+            {
+                return Ok(_chinookSupervisor.AddMediaType(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -112,7 +104,7 @@ public class MediaTypeController : ControllerBase
     [HttpPut("{id}")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<ActionResult<MediaTypeApiModel>> Put(int id, [FromBody] MediaTypeApiModel input)
+    public ActionResult<MediaTypeApiModel> Put(int id, [FromBody] MediaTypeApiModel input)
     {
         try
         {
@@ -120,8 +112,10 @@ public class MediaTypeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given MediaType is null");
             }
-
-            return Ok(await _chinookSupervisor.UpdateMediaType(input));
+            else
+            {
+                return Ok(_chinookSupervisor.UpdateMediaType(input));
+            }
         }
         catch (ValidationException ex)
         {
@@ -138,11 +132,11 @@ public class MediaTypeController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public ActionResult Delete(int id)
     {
         try
         {
-            return Ok(await _chinookSupervisor.DeleteMediaType(id));
+            return Ok(_chinookSupervisor.DeleteMediaType(id));
         }
         catch (Exception ex)
         {
