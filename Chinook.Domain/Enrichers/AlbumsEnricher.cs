@@ -12,9 +12,9 @@ public class AlbumsEnricher : ListEnricher<List<AlbumApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var album in representations)
+        foreach (var album in (IEnumerable<AlbumApiModel>)representations)
         {
             await _enricher.Process(album as AlbumApiModel);
         }

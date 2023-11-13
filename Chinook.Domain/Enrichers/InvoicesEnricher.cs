@@ -12,9 +12,9 @@ public class InvoicesEnricher : ListEnricher<List<InvoiceApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var invoice in representations)
+        foreach (var invoice in (IEnumerable<InvoiceApiModel>)representations)
         {
             await _enricher.Process(invoice as InvoiceApiModel);
         }

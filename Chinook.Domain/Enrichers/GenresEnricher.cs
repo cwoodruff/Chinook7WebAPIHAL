@@ -12,9 +12,9 @@ public class GenresEnricher : ListEnricher<List<GenreApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var genre in representations)
+        foreach (var genre in (IEnumerable<GenreApiModel>)representations)
         {
             await _enricher.Process(genre as GenreApiModel);
         }

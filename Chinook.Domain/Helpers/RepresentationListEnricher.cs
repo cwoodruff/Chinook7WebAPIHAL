@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Chinook.Domain.Helpers;
 
-public class ListRepresentationEnricher : IAsyncResultFilter
+public class RepresentationListEnricher : IAsyncResultFilter
 {
     private readonly IEnumerable<IListEnricher> enrichers;
 
-    public ListRepresentationEnricher(IEnumerable<IListEnricher> enrichers)
+    public RepresentationListEnricher(IEnumerable<IListEnricher> enrichers)
     {
         this.enrichers = enrichers;
     }
-    
+
     public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
     {
         if (context.Result is ObjectResult result)
@@ -19,12 +19,13 @@ public class ListRepresentationEnricher : IAsyncResultFilter
             var value = result.Value;
             foreach (var enricher in enrichers)
             {
-                if (await enricher.Match(value!))
+                if (value != null && await enricher.Match(value))
                 {
-                    await enricher.Process((value as List<object>)!);
+                    await enricher.Process(value);
                 }
             }
         }
+
         // call this or everything is blank!
         await next();
     }

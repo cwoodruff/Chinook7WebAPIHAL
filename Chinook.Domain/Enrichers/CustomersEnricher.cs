@@ -12,9 +12,9 @@ public class CustomersEnricher : ListEnricher<List<CustomerApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var customer in representations)
+        foreach (var customer in (IEnumerable<CustomerApiModel>)representations)
         {
             await _enricher.Process(customer as CustomerApiModel);
         }

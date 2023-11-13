@@ -136,5 +136,6 @@ public static class ServicesConfiguration
             .AddScoped<IListEnricher, TracksEnricher>();
 
         services.AddScoped<RepresentationEnricher>();
+        services.AddScoped<RepresentationListEnricher>();
     }
 }

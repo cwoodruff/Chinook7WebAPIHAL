@@ -12,9 +12,9 @@ public class TracksEnricher : ListEnricher<List<TrackApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var track in representations)
+        foreach (var track in (IEnumerable<TrackApiModel>)representations)
         {
             await _enricher.Process(track as TrackApiModel);
         }

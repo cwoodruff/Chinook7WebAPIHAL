@@ -12,9 +12,9 @@ public class MediaTypesEnricher : ListEnricher<List<MediaTypeApiModel>>
         _enricher = enricher;
     }
 
-    public override async Task Process(List<object> representations)
+    public override async Task Process(object representations)
     {
-        foreach (var mediatype in representations)
+        foreach (var mediatype in (IEnumerable<MediaTypeApiModel>)representations)
         {
             await _enricher.Process(mediatype as MediaTypeApiModel);
         }
