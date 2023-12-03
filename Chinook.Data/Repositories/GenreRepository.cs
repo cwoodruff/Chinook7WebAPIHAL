@@ -5,33 +5,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class GenreRepository : IGenreRepository
+public class GenreRepository(ChinookContext context) : IGenreRepository
 {
-    private readonly ChinookContext _context;
-
-    public GenreRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool GenreExists(int id) =>
-        _context.Genres.Any(g => g.Id == id);
+        context.Genres.Any(g => g.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<Genre> GetAll() =>
-        _context.Genres.AsNoTrackingWithIdentityResolution().ToList();
+        context.Genres.AsNoTrackingWithIdentityResolution().ToList();
 
     public Genre GetById(int id)
     {
-        var dbGenre = _context.Genres.Find(id);
+        var dbGenre = context.Genres.Include(g => g.Tracks).AsNoTrackingWithIdentityResolution().FirstOrDefault(g => g.Id == id);
         return dbGenre;
     }
 
     public Genre Add(Genre newGenre)
     {
-        _context.Genres.Add(newGenre);
-        _context.SaveChanges();
+        context.Genres.Add(newGenre);
+        context.SaveChanges();
         return newGenre;
     }
 
@@ -39,8 +32,8 @@ public class GenreRepository : IGenreRepository
     {
         if (!GenreExists(genre.Id))
             return false;
-        _context.Genres.Update(genre);
-        _context.SaveChanges();
+        context.Genres.Update(genre);
+        context.SaveChanges();
         return true;
     }
 
@@ -48,9 +41,9 @@ public class GenreRepository : IGenreRepository
     {
         if (!GenreExists(id))
             return false;
-        var toRemove = _context.Genres.Find(id);
-        _context.Genres.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Genres.Find(id);
+        context.Genres.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 }

@@ -1,9 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
-using Chinook.Domain.Converters;
+﻿namespace Chinook.Domain.Entities;
 
-namespace Chinook.Domain.Entities;
-
-public sealed class Employee : IConvertModel<EmployeeApiModel>
+public sealed class Employee
 {
     public Employee()
     {
@@ -26,31 +23,7 @@ public sealed class Employee : IConvertModel<EmployeeApiModel>
     public string? Phone { get; set; }
     public string? Fax { get; set; }
     public string? Email { get; set; }
-
-
     public Employee? ReportsToNavigation { get; set; }
-
     public ICollection<Customer>? Customers { get; set; }
-
     public ICollection<Employee>? InverseReportsToNavigation { get; set; }
-
-    public EmployeeApiModel Convert() =>
-        new()
-        {
-            Id = Id,
-            LastName = LastName,
-            FirstName = FirstName,
-            Title = Title,
-            ReportsTo = ReportsTo,
-            BirthDate = BirthDate,
-            HireDate = HireDate,
-            Address = Address,
-            City = City,
-            State = State,
-            Country = Country,
-            PostalCode = PostalCode,
-            Phone = Phone,
-            Fax = Fax,
-            Email = Email
-        };
 }

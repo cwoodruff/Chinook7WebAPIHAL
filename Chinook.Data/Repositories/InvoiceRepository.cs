@@ -5,39 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-/// <summary>
-/// The invoice repository.
-/// </summary>
-public class InvoiceRepository : IInvoiceRepository
+public class InvoiceRepository(ChinookContext context) : IInvoiceRepository
 {
-    /// <summary>
-    /// The _context.
-    /// </summary>
-    private readonly ChinookContext _context;
-
-    public InvoiceRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool InvoiceExists(int id) =>
-        _context.Invoices.Any(i => i.Id == id);
+        context.Invoices.Any(i => i.Id == id);
 
-    public void Dispose() => _context.Dispose();
-
-    public List<Invoice> GetAll()
-    {
-        var invoices = _context.Invoices;
-        return invoices.AsNoTrackingWithIdentityResolution().ToList();
-    }
+    public void Dispose() => context.Dispose();
+    
+    public List<Invoice> GetAll() =>
+        context.Invoices.Include(i => i.InvoiceLines).Include(i => i.Customer).AsNoTrackingWithIdentityResolution().ToList();
 
     public Invoice GetById(int id) =>
-        _context.Invoices.Find(id);
+        context.Invoices.Include(i => i.InvoiceLines).Include(i => i.Customer).AsNoTrackingWithIdentityResolution().FirstOrDefault(i => i.Id == id);
 
     public Invoice Add(Invoice newInvoice)
     {
-        _context.Invoices.Add(newInvoice);
-        _context.SaveChanges();
+        context.Invoices.Add(newInvoice);
+        context.SaveChanges();
         return newInvoice;
     }
 
@@ -45,8 +29,8 @@ public class InvoiceRepository : IInvoiceRepository
     {
         if (!InvoiceExists(invoice.Id))
             return false;
-        _context.Invoices.Update(invoice);
-        _context.SaveChanges();
+        context.Invoices.Update(invoice);
+        context.SaveChanges();
         return true;
     }
 
@@ -54,15 +38,15 @@ public class InvoiceRepository : IInvoiceRepository
     {
         if (!InvoiceExists(id))
             return false;
-        var toRemove = _context.Invoices.Find(id);
-        _context.Invoices.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Invoices.Find(id);
+        context.Invoices.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 
     public List<Invoice> GetByEmployeeId(int id) =>
-        _context.Customers.Where(a => a.SupportRepId == 5).SelectMany(t => t.Invoices).AsNoTrackingWithIdentityResolution().ToList();
+        context.Customers.Where(a => a.SupportRepId == 5).SelectMany(t => t.Invoices).AsNoTrackingWithIdentityResolution().ToList();
 
     public List<Invoice> GetByCustomerId(int id) =>
-        _context.Invoices.Where(i => i.CustomerId == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Invoices.Where(i => i.CustomerId == id).AsNoTrackingWithIdentityResolution().ToList();
 }

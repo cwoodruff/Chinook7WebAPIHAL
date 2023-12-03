@@ -5,32 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class AlbumRepository : IAlbumRepository
+public class AlbumRepository(ChinookContext context) : IAlbumRepository
 {
-    private readonly ChinookContext _context;
-
-    public AlbumRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool AlbumExists(int id) =>
-        _context.Albums.Any(a => a.Id == id);
+        context.Albums.Any(a => a.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
-    public List<Album> GetAll() => _context.Albums.AsNoTrackingWithIdentityResolution().ToList();
+    public List<Album> GetAll() => context.Albums.Include(a => a.Artist).Include(a => a.Tracks).AsNoTrackingWithIdentityResolution().ToList();
 
     public Album GetById(int id)
     {
-        var dbAlbum = _context.Albums.Find(id);
+        var dbAlbum = context.Albums.Include(a => a.Artist).Include(a => a.Tracks).AsNoTrackingWithIdentityResolution().FirstOrDefault(a => a.Id == id);
         return dbAlbum;
     }
 
     public Album Add(Album newAlbum)
     {
-        _context.Albums.Add(newAlbum);
-        _context.SaveChanges();
+        context.Albums.Add(newAlbum);
+        context.SaveChanges();
         return newAlbum;
     }
 
@@ -38,8 +31,8 @@ public class AlbumRepository : IAlbumRepository
     {
         if (!AlbumExists(album.Id))
             return false;
-        _context.Albums.Update(album);
-        _context.SaveChanges();
+        context.Albums.Update(album);
+        context.SaveChanges();
         return true;
     }
 
@@ -47,12 +40,14 @@ public class AlbumRepository : IAlbumRepository
     {
         if (!AlbumExists(id))
             return false;
-        var toRemove = _context.Albums.Find(id);
-        _context.Albums.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Albums.Find(id);
+        context.Albums.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 
     public List<Album> GetByArtistId(int id) =>
-        _context.Albums.Where(a => a.ArtistId == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Albums.Include(a => a.Artist)
+            .Include(a => a.Tracks)
+            .Where(a => a.ArtistId == id).AsNoTrackingWithIdentityResolution().ToList();
 }

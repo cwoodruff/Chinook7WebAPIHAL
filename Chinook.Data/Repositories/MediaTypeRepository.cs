@@ -5,30 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class MediaTypeRepository : IMediaTypeRepository
+public class MediaTypeRepository(ChinookContext context) : IMediaTypeRepository
 {
-    private readonly ChinookContext _context;
-
-    public MediaTypeRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool MediaTypeExists(int id) =>
-        _context.MediaTypes.Any(i => i.Id == id);
+        context.MediaTypes.Any(i => i.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<MediaType> GetAll() =>
-        _context.MediaTypes.AsNoTrackingWithIdentityResolution().ToList();
+        context.MediaTypes.AsNoTrackingWithIdentityResolution().ToList();
 
     public MediaType GetById(int id) =>
-        _context.MediaTypes.Find(id);
+        context.MediaTypes.Include(m => m.Tracks).AsNoTrackingWithIdentityResolution().FirstOrDefault(m => m.Id == id);
 
     public MediaType Add(MediaType newMediaType)
     {
-        _context.MediaTypes.Add(newMediaType);
-        _context.SaveChanges();
+        context.MediaTypes.Add(newMediaType);
+        context.SaveChanges();
         return newMediaType;
     }
 
@@ -36,8 +29,8 @@ public class MediaTypeRepository : IMediaTypeRepository
     {
         if (!MediaTypeExists(mediaType.Id))
             return false;
-        _context.MediaTypes.Update(mediaType);
-        _context.SaveChanges();
+        context.MediaTypes.Update(mediaType);
+        context.SaveChanges();
         return true;
     }
 
@@ -45,9 +38,9 @@ public class MediaTypeRepository : IMediaTypeRepository
     {
         if (!MediaTypeExists(id))
             return false;
-        var toRemove = _context.MediaTypes.Find(id);
-        _context.MediaTypes.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.MediaTypes.Find(id);
+        context.MediaTypes.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 }

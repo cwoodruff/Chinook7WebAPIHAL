@@ -1,18 +1,8 @@
-﻿using Chinook.Domain.Converters;
-using Chinook.Domain.Entities;
+﻿namespace Chinook.Domain.ApiModels;
 
-namespace Chinook.Domain.ApiModels;
-
-public class ArtistApiModel : BaseApiModel, IConvertModel<Artist>
+public class ArtistApiModel : BaseApiModel
 {
     public string? Name { get; set; }
 
     public IList<AlbumApiModel>? Albums { get; set; }
-
-    public Artist Convert() =>
-        new()
-        {
-            Id = Id,
-            Name = Name ?? string.Empty
-        };
 }

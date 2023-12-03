@@ -5,30 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class PlaylistRepository : IPlaylistRepository
+public class PlaylistRepository(ChinookContext context) : IPlaylistRepository
 {
-    private readonly ChinookContext _context;
-
-    public PlaylistRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool PlaylistExists(int id) =>
-        _context.Playlists.Any(i => i.Id == id);
+        context.Playlists.Any(i => i.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<Playlist> GetAll() =>
-        _context.Playlists.AsNoTrackingWithIdentityResolution().ToList();
+        context.Playlists.AsNoTrackingWithIdentityResolution().ToList();
 
     public Playlist GetById(int id) =>
-        _context.Playlists.Find(id);
+        context.Playlists.Include(p => p.Tracks).AsNoTrackingWithIdentityResolution().FirstOrDefault(p => p.Id == id);
 
     public Playlist Add(Playlist newPlaylist)
     {
-        _context.Playlists.Add(newPlaylist);
-        _context.SaveChanges();
+        context.Playlists.Add(newPlaylist);
+        context.SaveChanges();
         return newPlaylist;
     }
 
@@ -36,8 +29,8 @@ public class PlaylistRepository : IPlaylistRepository
     {
         if (!PlaylistExists(playlist.Id))
             return false;
-        _context.Playlists.Update(playlist);
-        _context.SaveChanges();
+        context.Playlists.Update(playlist);
+        context.SaveChanges();
         return true;
     }
 
@@ -45,15 +38,15 @@ public class PlaylistRepository : IPlaylistRepository
     {
         if (!PlaylistExists(id))
             return false;
-        var toRemove = _context.Playlists.Find(id);
-        _context.Playlists.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Playlists.Find(id);
+        context.Playlists.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 
     public List<Playlist> GetByTrackId(int id)
     {
-        return _context.Playlists
+        return context.Playlists
             .Where(c => c.Tracks.Any(o => o.Id == id))
             .AsNoTrackingWithIdentityResolution().ToList();
     }

@@ -5,22 +5,13 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Chinook.Domain.Enrichers;
 
-public class EmployeeEnricher : Enricher<EmployeeApiModel>
+public class EmployeeEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator) : Enricher<EmployeeApiModel>
 {
-    private readonly IHttpContextAccessor _accessor;
-    private readonly LinkGenerator _linkGenerator;
-
-    public EmployeeEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator)
-    {
-        _accessor = accessor;
-        _linkGenerator = linkGenerator;
-    }
-    
     public override Task Process(EmployeeApiModel? representation)
     {
-        var httpContext = _accessor.HttpContext;
+        var httpContext = accessor.HttpContext;
 
-        var url = _linkGenerator.GetUriByName(
+        var url = linkGenerator.GetUriByName(
             httpContext!,
             "GetEmployeeById",
             new { id = representation.Id },
@@ -33,7 +24,58 @@ public class EmployeeEnricher : Enricher<EmployeeApiModel>
             Title = $"Employee: #{representation.Id}",
             Href = url!
         });
+        
+        // enrich ReportsTo
+        var urlReportsTo = linkGenerator.GetUriByName(
+            httpContext,
+            "GetEmployeeById",
+            new { id = representation.ReportsTo },
+            scheme: "https"
+        );
 
+        representation.ReportsToNavigation.AddLink(new Link
+        {
+            Rel = representation.Id.ToString(),
+            Title = $"Employee: #{representation.ReportsTo}",
+            Href = urlReportsTo
+        });
+        
+        // enrich DirectReports
+        foreach (var directReport in representation.InverseReportsToNavigation)
+        {
+            var urlDirectReport = linkGenerator.GetUriByName(
+                httpContext!,
+                "GetEmployeeById",
+                new { id = directReport.Id },
+                scheme: "https"
+            );
+        
+            directReport.AddLink(new Link
+            {
+                Rel = directReport.Id.ToString(),
+                Title = $"Employee: #{directReport.Id}",
+                Href = urlDirectReport!
+            });
+        }
+        
+        // enrich Customers
+        foreach (var customer in representation.Customers)
+        {
+            var urlCustomer = linkGenerator.GetUriByName(
+                httpContext!,
+                "GetCustomerById",
+                new { id = customer.Id },
+                scheme: "https"
+            );
+        
+            customer.AddLink(new Link
+            {
+                Rel = customer.Id.ToString(),
+                Title = $"Customer: #{customer.Id}",
+                Href = urlCustomer!
+            });
+        }
+        
         return Task.CompletedTask;
     }
 }

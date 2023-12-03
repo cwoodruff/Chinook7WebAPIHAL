@@ -1,9 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
-using Chinook.Domain.Converters;
+﻿namespace Chinook.Domain.Entities;
 
-namespace Chinook.Domain.Entities;
-
-public sealed class Invoice : IConvertModel<InvoiceApiModel>
+public sealed class Invoice
 {
     public Invoice()
     {
@@ -21,18 +18,4 @@ public sealed class Invoice : IConvertModel<InvoiceApiModel>
     public decimal Total { get; set; }
     public Customer? Customer { get; set; }
     public ICollection<InvoiceLine>? InvoiceLines { get; set; }
-
-    public InvoiceApiModel Convert() =>
-        new()
-        {
-            Id = Id,
-            CustomerId = CustomerId,
-            InvoiceDate = InvoiceDate,
-            BillingAddress = BillingAddress,
-            BillingCity = BillingCity,
-            BillingState = BillingState,
-            BillingCountry = BillingCountry,
-            BillingPostalCode = BillingPostalCode,
-            Total = Total
-        };
 }

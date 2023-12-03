@@ -10,24 +10,16 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
-public class AlbumController : ControllerBase
+public class AlbumController(IChinookSupervisor chinookSupervisor, ILogger<AlbumController> logger)
+    : ControllerBase
 {
-    private readonly IChinookSupervisor _chinookSupervisor;
-    private readonly ILogger<AlbumController> _logger;
-
-    public AlbumController(IChinookSupervisor chinookSupervisor, ILogger<AlbumController> logger)
-    {
-        _chinookSupervisor = chinookSupervisor;
-        _logger = logger;
-    }
-
     [HttpGet]
     [Produces(typeof(List<AlbumApiModel>))]
     public ActionResult<List<AlbumApiModel>> Get()
     {
         try  
         {  
-            var albums = _chinookSupervisor.GetAllAlbum();  
+            var albums = chinookSupervisor.GetAllAlbum();  
 
             if (albums.Any())  
             {  
@@ -40,7 +32,7 @@ public class AlbumController : ControllerBase
         }  
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController Get action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController Get action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Get All Albums");  
         }  
     }
@@ -50,7 +42,7 @@ public class AlbumController : ControllerBase
     {
         try  
         {  
-            var album = _chinookSupervisor.GetAlbumById(id);  
+            var album = chinookSupervisor.GetAlbumById(id);  
 
             if (album != null)  
             {  
@@ -63,7 +55,7 @@ public class AlbumController : ControllerBase
         }  
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController GetById action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController GetById action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Get Album By Id");  
         }
     }
@@ -81,17 +73,17 @@ public class AlbumController : ControllerBase
             }
             else
             {
-                return Ok(_chinookSupervisor.AddAlbum(input));
+                return Ok(chinookSupervisor.AddAlbum(input));
             }
         }
         catch (ValidationException  ex)  
         {  
-            _logger.LogError($"The Album could not validated: Add Album action: {ex}");  
+            logger.LogError($"The Album could not validated: Add Album action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Validation error while executing Add Albums");  
         }
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController Add Album action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController Add Album action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Add Albums");  
         }
     }
@@ -109,17 +101,17 @@ public class AlbumController : ControllerBase
             }  
             else  
             {
-                return Ok(_chinookSupervisor.UpdateAlbum(input));
+                return Ok(chinookSupervisor.UpdateAlbum(input));
             }  
         }
         catch (ValidationException  ex)  
         {  
-            _logger.LogError($"The Album could not validated: Update Album action: {ex}");  
+            logger.LogError($"The Album could not validated: Update Album action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Validation error while executing Update Albums");  
         }
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController Update Album action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController Update Album action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Update Albums");  
         }
     }
@@ -129,11 +121,11 @@ public class AlbumController : ControllerBase
     {
         try  
         {  
-            return Ok(_chinookSupervisor.DeleteAlbum(id)); 
+            return Ok(chinookSupervisor.DeleteAlbum(id)); 
         }  
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController Delete action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController Delete action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Delete Album");  
         }
     }
@@ -143,7 +135,7 @@ public class AlbumController : ControllerBase
     {
         try  
         {  
-            var albums = _chinookSupervisor.GetAlbumByArtistId(id);  
+            var albums = chinookSupervisor.GetAlbumByArtistId(id);  
 
             if (albums.Any())  
             {  
@@ -156,7 +148,7 @@ public class AlbumController : ControllerBase
         }  
         catch (Exception ex)  
         {  
-            _logger.LogError($"Something went wrong inside the AlbumController Get By Artist action: {ex}");  
+            logger.LogError($"Something went wrong inside the AlbumController Get By Artist action: {ex}");  
             return StatusCode((int)HttpStatusCode.InternalServerError, "Error occurred while executing Get All Albums for Artist");  
         }  
     }

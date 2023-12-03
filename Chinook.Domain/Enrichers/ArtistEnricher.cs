@@ -5,22 +5,13 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Chinook.Domain.Enrichers;
 
-public class ArtistEnricher : Enricher<ArtistApiModel>
+public class ArtistEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator) : Enricher<ArtistApiModel>
 {
-    private readonly IHttpContextAccessor _accessor;
-    private readonly LinkGenerator _linkGenerator;
-
-    public ArtistEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator)
-    {
-        _accessor = accessor;
-        _linkGenerator = linkGenerator;
-    }
-
     public override Task Process(ArtistApiModel? representation)
     {
-        var httpContext = _accessor.HttpContext;
+        var httpContext = accessor.HttpContext;
 
-        var url = _linkGenerator.GetUriByName(
+        var url = linkGenerator.GetUriByName(
             httpContext!,
             "GetArtistById",
             new { id = representation.Id },
@@ -33,6 +24,24 @@ public class ArtistEnricher : Enricher<ArtistApiModel>
             Title = $"Artist: #{representation.Id}",
             Href = url!
         });
+        
+        // enrich the albums
+        foreach (var album in representation.Albums)
+        {
+            var urlAlbum = linkGenerator.GetUriByName(
+                httpContext,
+                "GetAlbumById",
+                new { id = representation.Id },
+                scheme: "https"
+            );
+
+            album.AddLink(new Link
+            {
+                Rel = representation.Id.ToString(),
+                Title = $"Album: #{representation.Id}",
+                Href = urlAlbum
+            });
+        }
 
         return Task.CompletedTask;
     }

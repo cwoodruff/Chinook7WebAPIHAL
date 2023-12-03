@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="Chinook@localhost" uuid="3cd25682-fc12-4ffb-9de2-df1cf9cbe4df">
+      <driver-ref>sqlserver.jb</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>com.jetbrains.jdbc.sqlserver.SqlServerDriver</jdbc-driver>
+      <jdbc-url>Server=localhost,2019;Database=Chinook;User=sa;Password=8Riwudeg!!;Trusted_Connection=False;MultipleActiveResultSets=true;TrustServerCertificate=true;Application Name=ChinookWebAPI</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>

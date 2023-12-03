@@ -5,30 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class EmployeeRepository : IEmployeeRepository
+public class EmployeeRepository(ChinookContext context) : IEmployeeRepository
 {
-    private readonly ChinookContext _context;
-
-    public EmployeeRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool EmployeeExists(int id) =>
-        _context.Employees.Any(e => e.Id == id);
+        context.Employees.Any(e => e.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<Employee> GetAll() =>
-        _context.Employees.AsNoTrackingWithIdentityResolution().ToList();
+        context.Employees
+            .AsNoTrackingWithIdentityResolution().ToList();
 
     public Employee GetById(int id) =>
-        _context.Employees.Find(id);
+        context.Employees.Include(e => e.Customers).Include(e => e.ReportsToNavigation).AsNoTrackingWithIdentityResolution().FirstOrDefault(e => e.Id == id);
 
     public Employee Add(Employee newEmployee)
     {
-        _context.Employees.Add(newEmployee);
-        _context.SaveChanges();
+        context.Employees.Add(newEmployee);
+        context.SaveChanges();
         return newEmployee;
     }
 
@@ -36,8 +30,8 @@ public class EmployeeRepository : IEmployeeRepository
     {
         if (!EmployeeExists(employee.Id))
             return false;
-        _context.Employees.Update(employee);
-        _context.SaveChanges();
+        context.Employees.Update(employee);
+        context.SaveChanges();
         return true;
     }
 
@@ -45,21 +39,21 @@ public class EmployeeRepository : IEmployeeRepository
     {
         if (!EmployeeExists(id))
             return false;
-        var toRemove = _context.Employees.Find(id);
-        _context.Employees.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Employees.Find(id);
+        context.Employees.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 
     public Employee GetReportsTo(int id) =>
-        _context.Employees.Find(id);
+        context.Employees.Find(id);
 
     public List<Employee> GetDirectReports(int id) =>
-        _context.Employees.Where(e => e.ReportsTo == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Employees.Where(e => e.ReportsTo == id).AsNoTrackingWithIdentityResolution().ToList();
 
     public Employee GetToReports(int id) =>
-        _context.Employees
-            .Find(_context.Employees.Where(e => e.Id == id)
+        context.Employees
+            .Find(context.Employees.Where(e => e.Id == id)
                 .Select(p => new { p.ReportsTo })
                 .First());
 }

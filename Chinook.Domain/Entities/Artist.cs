@@ -1,9 +1,6 @@
-﻿using Chinook.Domain.ApiModels;
-using Chinook.Domain.Converters;
+﻿namespace Chinook.Domain.Entities;
 
-namespace Chinook.Domain.Entities;
-
-public sealed class Artist : IConvertModel<ArtistApiModel>
+public sealed class Artist
 {
     public Artist()
     {
@@ -14,11 +11,4 @@ public sealed class Artist : IConvertModel<ArtistApiModel>
     public string? Name { get; set; }
 
     public ICollection<Album>? Albums { get; set; }
-
-    public ArtistApiModel Convert() =>
-        new()
-        {
-            Id = Id,
-            Name = Name
-        };
 }

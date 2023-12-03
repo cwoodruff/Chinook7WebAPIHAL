@@ -5,23 +5,13 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Chinook.Domain.Enrichers;
 
-public class CustomerEnricher : Enricher<CustomerApiModel>
+public class CustomerEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator) : Enricher<CustomerApiModel>
 {
-    private readonly IHttpContextAccessor _accessor;
-    private readonly LinkGenerator _linkGenerator;
-
-
-    public CustomerEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator)
-    {
-        _accessor = accessor;
-        _linkGenerator = linkGenerator;
-    }
-    
     public override Task Process(CustomerApiModel? representation)
     {
-        var httpContext = _accessor.HttpContext;
+        var httpContext = accessor.HttpContext;
 
-        var url = _linkGenerator.GetUriByName(
+        var url = linkGenerator.GetUriByName(
             httpContext!,
             "GetCustomerById",
             new { id = representation.Id },
@@ -34,6 +24,39 @@ public class CustomerEnricher : Enricher<CustomerApiModel>
             Title = $"Customer: #{representation.Id}",
             Href = url!
         });
+        
+        // enrich Support Rep
+        var urlSupportRep = linkGenerator.GetUriByName(
+            httpContext,
+            "GetEmployeeById",
+            new { id = representation.SupportRepId },
+            scheme: "https"
+        );
+
+        representation.SupportRep.AddLink(new Link
+        {
+            Rel = representation.SupportRepId.ToString(),
+            Title = $"Employee: #{representation.SupportRepId}",
+            Href = urlSupportRep
+        });
+        
+        // enrich invoices
+        foreach (var invoice in representation.Invoices)
+        {
+            var urlInvoice = linkGenerator.GetUriByName(
+                httpContext!,
+                "GetInvoiceById",
+                new { id = invoice.Id },
+                scheme: "https"
+            );
+        
+            invoice.AddLink(new Link
+            {
+                Rel = invoice.Id.ToString(),
+                Title = $"Invoice: #{invoice.Id}",
+                Href = urlInvoice!
+            });
+        }
 
         return Task.CompletedTask;
     }

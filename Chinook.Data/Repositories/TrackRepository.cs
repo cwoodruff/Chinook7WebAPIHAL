@@ -5,30 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class TrackRepository : ITrackRepository
+public class TrackRepository(ChinookContext context) : ITrackRepository
 {
-    private readonly ChinookContext _context;
-
-    public TrackRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool TrackExists(int id) =>
-        _context.Tracks.Any(i => i.Id == id);
+        context.Tracks.Any(i => i.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<Track> GetAll() =>
-        _context.Tracks.AsNoTrackingWithIdentityResolution().ToList();
+        context.Tracks.Include(t => t.Album).Include(t => t.Genre).Include(t => t.MediaType).AsNoTrackingWithIdentityResolution().ToList();
 
     public Track GetById(int id) =>
-        _context.Tracks.Find(id);
+        context.Tracks.Include(t => t.Album).Include(t => t.Genre).Include(t => t.MediaType).AsNoTrackingWithIdentityResolution().FirstOrDefault(t => t.Id == id);
 
     public Track Add(Track newTrack)
     {
-        _context.Tracks.Add(newTrack);
-        _context.SaveChanges();
+        context.Tracks.Add(newTrack);
+        context.SaveChanges();
         return newTrack;
     }
 
@@ -36,8 +29,8 @@ public class TrackRepository : ITrackRepository
     {
         if (!TrackExists(track.Id))
             return false;
-        _context.Tracks.Update(track);
-        _context.SaveChanges();
+        context.Tracks.Update(track);
+        context.SaveChanges();
         return true;
     }
 
@@ -45,29 +38,29 @@ public class TrackRepository : ITrackRepository
     {
         if (!TrackExists(id))
             return false;
-        var toRemove = _context.Tracks.Find(id);
-        _context.Tracks.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Tracks.Find(id);
+        context.Tracks.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 
     public List<Track> GetByAlbumId(int id) =>
-        _context.Tracks.Where(a => a.AlbumId == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Tracks.Where(a => a.AlbumId == id).AsNoTrackingWithIdentityResolution().ToList();
 
     public List<Track> GetByGenreId(int id) =>
-        _context.Tracks.Where(a => a.GenreId == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Tracks.Include(t => t.Album).Include(t => t.Genre).Where(a => a.GenreId == id).AsNoTrackingWithIdentityResolution().ToList();
 
     public List<Track> GetByMediaTypeId(int id) =>
-        _context.Tracks.Where(a => a.MediaTypeId == id).AsNoTrackingWithIdentityResolution().ToList();
+        context.Tracks.Include(t => t.Album).Include(t => t.Genre).Where(a => a.MediaTypeId == id).AsNoTrackingWithIdentityResolution().ToList();
 
     public List<Track> GetByPlaylistId(int id) =>
-        _context.Playlists.Where(p => p.Id == id).SelectMany(p => p.Tracks)
+        context.Playlists.Where(p => p.Id == id).SelectMany(p => p.Tracks)
             .AsNoTrackingWithIdentityResolution().ToList();
 
     public List<Track> GetByArtistId(int id) =>
-        _context.Albums.Where(a => a.ArtistId == 5).SelectMany(t => t.Tracks).AsNoTrackingWithIdentityResolution().ToList();
+        context.Albums.Include(a => a.Artist).Where(a => a.ArtistId == 5).SelectMany(t => t.Tracks).AsNoTrackingWithIdentityResolution().ToList();
 
-    public List<Track> GetByInvoiceId(int id) => _context.Tracks
+    public List<Track> GetByInvoiceId(int id) => context.Tracks.Include(t => t.Album)
         .Where(c => c.InvoiceLines.Any(o => o.InvoiceId == id))
         .AsNoTrackingWithIdentityResolution().ToList();
 }

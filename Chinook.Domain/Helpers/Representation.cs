@@ -2,7 +2,7 @@
 
 public abstract class Representation : IRepresentation
 {
-    public List<Link> Links { get; set; } = new List<Link>();
+    public List<Link> Links { get; set; } = new();
 
     public Representation AddLink(Link link)
     {

@@ -1,9 +1,6 @@
-﻿using Chinook.Domain.Converters;
-using Chinook.Domain.Entities;
+﻿namespace Chinook.Domain.ApiModels;
 
-namespace Chinook.Domain.ApiModels;
-
-public class InvoiceApiModel : BaseApiModel, IConvertModel<Invoice>
+public class InvoiceApiModel : BaseApiModel
 {
     public int CustomerId { get; set; }
     public string? CustomerName { get; set; }
@@ -18,18 +15,4 @@ public class InvoiceApiModel : BaseApiModel, IConvertModel<Invoice>
     public IList<InvoiceLineApiModel>? InvoiceLines { get; set; }
 
     public CustomerApiModel? Customer { get; set; }
-
-    public Invoice Convert() =>
-        new()
-        {
-            Id = Id,
-            CustomerId = CustomerId,
-            InvoiceDate = InvoiceDate,
-            BillingAddress = BillingAddress,
-            BillingCity = BillingCity,
-            BillingState = BillingState,
-            BillingCountry = BillingCountry,
-            BillingPostalCode = BillingPostalCode,
-            Total = Total
-        };
 }

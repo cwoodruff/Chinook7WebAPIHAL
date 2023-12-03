@@ -5,34 +5,58 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Chinook.Domain.Enrichers;
 
-public class AlbumEnricher : Enricher<AlbumApiModel>
+public class AlbumEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator) : Enricher<AlbumApiModel>
 {
-    private readonly IHttpContextAccessor _accessor;
-    private readonly LinkGenerator _linkGenerator;
-
-    public AlbumEnricher(IHttpContextAccessor accessor, LinkGenerator linkGenerator)
-    {
-        _accessor = accessor;
-        _linkGenerator = linkGenerator;
-    }
-
     public override Task Process(AlbumApiModel? representation)
     {
-        var httpContext = _accessor.HttpContext;
+        var httpContext = accessor.HttpContext;
 
-        var url = _linkGenerator.GetUriByName(
+        var url = linkGenerator.GetUriByName(
             httpContext,
             "GetAlbumById",
             new { id = representation.Id },
             scheme: "https"
         );
-        
+
         representation.AddLink(new Link
+        {
+            Rel = representation.Id.ToString(),
+            Title = $"Album: #{representation.Id}",
+            Href = url
+        });
+
+        // enrich the tracks
+        foreach (var track in representation.Tracks)
+        {
+            var urlTrack = linkGenerator.GetUriByName(
+                httpContext,
+                "GetTrackById",
+                new { id = track.Id },
+                scheme: "https"
+            );
+
+            track.AddLink(new Link
             {
-                Rel = representation.Id.ToString(),
-                Title = $"Album: #{representation.Id}",
-                Href = url
+                Rel = track.Id.ToString(),
+                Title = $"Track: #{track.Id}",
+                Href = urlTrack
             });
+        }
+
+        // enrich the artist
+        var urlArtist = linkGenerator.GetUriByName(
+            httpContext,
+            "GetArtistById",
+            new { id = representation.ArtistId },
+            scheme: "https"
+        );
+
+        representation.Artist.AddLink(new Link
+        {
+            Rel = representation.ArtistId.ToString(),
+            Title = $"Artist: #{representation.ArtistId}",
+            Href = urlArtist
+        });
 
         return Task.CompletedTask;
     }

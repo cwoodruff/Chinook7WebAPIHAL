@@ -1,9 +1,6 @@
-﻿using Chinook.Domain.Converters;
-using Chinook.Domain.Entities;
+﻿namespace Chinook.Domain.ApiModels;
 
-namespace Chinook.Domain.ApiModels;
-
-public class InvoiceLineApiModel : BaseApiModel, IConvertModel<InvoiceLine>
+public class InvoiceLineApiModel : BaseApiModel
 {
     public int InvoiceId { get; set; }
     public int TrackId { get; set; }
@@ -14,14 +11,4 @@ public class InvoiceLineApiModel : BaseApiModel, IConvertModel<InvoiceLine>
     public InvoiceApiModel? Invoice { get; set; }
 
     public TrackApiModel? Track { get; set; }
-
-    public InvoiceLine Convert() =>
-        new()
-        {
-            Id = Id,
-            InvoiceId = InvoiceId,
-            TrackId = TrackId,
-            UnitPrice = UnitPrice,
-            Quantity = Quantity
-        };
 }

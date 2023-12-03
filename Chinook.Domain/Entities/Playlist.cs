@@ -1,19 +1,9 @@
-﻿using Chinook.Domain.ApiModels;
-using Chinook.Domain.Converters;
+﻿namespace Chinook.Domain.Entities;
 
-namespace Chinook.Domain.Entities;
-
-public sealed class Playlist : IConvertModel<PlaylistApiModel>
+public sealed class Playlist
 {
     public int Id { get; set; }
     public string? Name { get; set; }
 
     public ICollection<Track>? Tracks { get; set; }
-
-    public PlaylistApiModel Convert() =>
-        new()
-        {
-            Id = Id,
-            Name = Name
-        };
 }

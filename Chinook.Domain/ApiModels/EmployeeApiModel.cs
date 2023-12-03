@@ -1,15 +1,13 @@
-﻿using Chinook.Domain.Converters;
-using Chinook.Domain.Entities;
+﻿using Chinook.Domain.Entities;
 
 namespace Chinook.Domain.ApiModels;
 
-public class EmployeeApiModel : BaseApiModel, IConvertModel<Employee>
+public class EmployeeApiModel : BaseApiModel
 {
     public string? LastName { get; set; }
     public string? FirstName { get; set; }
     public string? Title { get; set; }
     public int ReportsTo { get; set; }
-    public string? ReportsToName { get; set; }
     public DateTime BirthDate { get; set; }
     public DateTime HireDate { get; set; }
     public string? Address { get; set; }
@@ -20,30 +18,8 @@ public class EmployeeApiModel : BaseApiModel, IConvertModel<Employee>
     public string? Phone { get; set; }
     public string? Fax { get; set; }
     public string? Email { get; set; }
-
-    public List<CustomerApiModel>? Customers { get; set; }
-
-    public EmployeeApiModel? Manager { get; set; }
-
-    public ICollection<EmployeeApiModel>? DirectReports { get; set; }
-
-    public Employee Convert() =>
-        new()
-        {
-            Id = Id,
-            LastName = LastName ?? string.Empty,
-            FirstName = FirstName ?? string.Empty,
-            Title = Title ?? string.Empty,
-            ReportsTo = ReportsTo,
-            BirthDate = BirthDate,
-            HireDate = HireDate,
-            Address = Address ?? string.Empty,
-            City = City ?? string.Empty,
-            State = State ?? string.Empty,
-            Country = Country ?? string.Empty,
-            PostalCode = PostalCode ?? string.Empty,
-            Phone = Phone ?? string.Empty,
-            Fax = Fax ?? string.Empty,
-            Email = Email ?? string.Empty
-        };
+    
+    public EmployeeApiModel? ReportsToNavigation { get; set; }
+    public ICollection<CustomerApiModel>? Customers { get; set; }
+    public ICollection<EmployeeApiModel>? InverseReportsToNavigation { get; set; }
 }

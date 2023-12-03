@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Chinook.API.Configurations;
 using Chinook.Domain.Helpers;
 
@@ -11,7 +12,13 @@ builder.Services.AddAPILogging();
 builder.Services.AddCORS();
 builder.Services.ConfigureValidators();
 builder.Services.AddCaching(builder.Configuration);
+builder.Services.AddAutoMapperConfig();
 builder.Services.AddHypermedia();
+
+builder.Services.AddMvc().AddJsonOptions(options => {
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    //options.JsonSerializerOptions.MaxDepth = 64;
+});
 
 builder.Services.AddControllers(cfg =>
 {

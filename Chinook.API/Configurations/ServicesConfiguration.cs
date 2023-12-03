@@ -1,3 +1,5 @@
+using AutoMapper.EquivalencyExpression;
+using Chinook.API.Profiles;
 using Chinook.Domain.Repositories;
 using Chinook.Domain.Supervisor;
 using Chinook.Data.Repositories;
@@ -81,13 +83,6 @@ public static class ServicesConfiguration
         IConfiguration configuration)
     {
         services.AddResponseCaching();
-        services.AddMemoryCache();
-        services.AddDistributedSqlServerCache(options =>
-        {
-            options.ConnectionString = configuration.GetConnectionString("ChinookSQLCache");
-            options.SchemaName = "dbo";
-            options.TableName = "ChinookCache";
-        });
     }
     
     public static void AddHypermedia(this IServiceCollection services)
@@ -97,45 +92,52 @@ public static class ServicesConfiguration
         services.AddScoped<AlbumEnricher>()
             .AddScoped<IEnricher, AlbumEnricher>()
             .AddScoped<AlbumsEnricher>()
-            .AddScoped<IListEnricher, AlbumsEnricher>()
+            .AddScoped<IEnricher, AlbumsEnricher>()
             .AddScoped<ArtistEnricher>()
             .AddScoped<IEnricher, ArtistEnricher>()
             .AddScoped<ArtistsEnricher>()
-            .AddScoped<IListEnricher, ArtistsEnricher>()
+            .AddScoped<IEnricher, ArtistsEnricher>()
             .AddScoped<CustomerEnricher>()
             .AddScoped<IEnricher, CustomerEnricher>()
             .AddScoped<CustomersEnricher>()
-            .AddScoped<IListEnricher, CustomersEnricher>()
+            .AddScoped<IEnricher, CustomersEnricher>()
             .AddScoped<EmployeeEnricher>()
             .AddScoped<IEnricher, EmployeeEnricher>()
             .AddScoped<EmployeesEnricher>()
-            .AddScoped<IListEnricher, EmployeesEnricher>()
+            .AddScoped<IEnricher, EmployeesEnricher>()
             .AddScoped<GenreEnricher>()
             .AddScoped<IEnricher, GenreEnricher>()
             .AddScoped<GenresEnricher>()
-            .AddScoped<IListEnricher, GenresEnricher>()
+            .AddScoped<IEnricher, GenresEnricher>()
             .AddScoped<InvoiceEnricher>()
             .AddScoped<IEnricher, InvoiceEnricher>()
             .AddScoped<InvoicesEnricher>()
-            .AddScoped<IListEnricher, InvoicesEnricher>()
+            .AddScoped<IEnricher, InvoicesEnricher>()
             .AddScoped<InvoiceLineEnricher>()
             .AddScoped<IEnricher, InvoiceLineEnricher>()
             .AddScoped<InvoiceLinesEnricher>()
-            .AddScoped<IListEnricher, InvoiceLinesEnricher>()
+            .AddScoped<IEnricher, InvoiceLinesEnricher>()
             .AddScoped<MediaTypeEnricher>()
             .AddScoped<IEnricher, MediaTypeEnricher>()
             .AddScoped<MediaTypesEnricher>()
-            .AddScoped<IListEnricher, MediaTypesEnricher>()
+            .AddScoped<IEnricher, MediaTypesEnricher>()
             .AddScoped<PlaylistEnricher>()
             .AddScoped<IEnricher, PlaylistEnricher>()
             .AddScoped<PlaylistsEnricher>()
-            .AddScoped<IListEnricher, PlaylistsEnricher>()
+            .AddScoped<IEnricher, PlaylistsEnricher>()
             .AddScoped<TrackEnricher>()
             .AddScoped<IEnricher, TrackEnricher>()
             .AddScoped<TracksEnricher>()
-            .AddScoped<IListEnricher, TracksEnricher>();
+            .AddScoped<IEnricher, TracksEnricher>();
 
         services.AddScoped<RepresentationEnricher>();
-        services.AddScoped<RepresentationListEnricher>();
+    }
+
+    public static void AddAutoMapperConfig(this IServiceCollection services)
+    {
+        services.AddAutoMapper((serviceProvider, automapper) =>
+        {
+            automapper.AddCollectionMappers();
+        }, typeof(MapperConfig));
     }
 }

@@ -3,30 +3,22 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Chinook.Domain.Helpers;
 
-public class RepresentationEnricher : IAsyncResultFilter
+public class RepresentationEnricher(IEnumerable<IEnricher> enrichers, IEnumerable<IEnricher> listEnrichers)
+    : IAsyncResultFilter
 {
-    private readonly IEnumerable<IEnricher> _enrichers;
-    private readonly IEnumerable<IListEnricher> _listEnrichers;
-
-    public RepresentationEnricher(IEnumerable<IEnricher> enrichers, IEnumerable<IListEnricher> listEnrichers)
-    {
-        _enrichers = enrichers;
-        _listEnrichers = listEnrichers;
-    }
-    
     public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
     {
         if (context.Result is ObjectResult result)
         {
             var value = result.Value;
-            foreach (var enricher in _enrichers)
+            foreach (var enricher in enrichers)
             {
                 if (value != null && await enricher.Match(value))
                 {
                     await enricher.Process(value);
                 }
             }
-            foreach (var listEnricher in _listEnrichers)
+            foreach (var listEnricher in listEnrichers)
             {
                 if (value != null && await listEnricher.Match(value))
                 {

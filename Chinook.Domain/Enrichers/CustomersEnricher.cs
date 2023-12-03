@@ -3,20 +3,13 @@ using Chinook.Domain.Helpers;
 
 namespace Chinook.Domain.Enrichers;
 
-public class CustomersEnricher : ListEnricher<List<CustomerApiModel>>
+public class CustomersEnricher(CustomerEnricher enricher) : ListEnricher<List<CustomerApiModel>>
 {
-    private readonly CustomerEnricher _enricher;
-
-    public CustomersEnricher(CustomerEnricher enricher)
-    {
-        _enricher = enricher;
-    }
-
     public override async Task Process(object representations)
     {
         foreach (var customer in (IEnumerable<CustomerApiModel>)representations)
         {
-            await _enricher.Process(customer as CustomerApiModel);
+            await enricher.Process(customer as CustomerApiModel);
         }
     }
 }

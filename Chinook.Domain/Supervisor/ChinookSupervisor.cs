@@ -1,40 +1,11 @@
-﻿using Chinook.Domain.ApiModels;
+﻿using AutoMapper;
+using Chinook.Domain.ApiModels;
 using Chinook.Domain.Repositories;
 using FluentValidation;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Chinook.Domain.Supervisor;
 
-public partial class ChinookSupervisor : IChinookSupervisor
-{
-    private readonly IAlbumRepository _albumRepository;
-    private readonly IArtistRepository _artistRepository;
-    private readonly ICustomerRepository _customerRepository;
-    private readonly IEmployeeRepository _employeeRepository;
-    private readonly IGenreRepository _genreRepository;
-    private readonly IInvoiceLineRepository _invoiceLineRepository;
-    private readonly IInvoiceRepository _invoiceRepository;
-    private readonly IMediaTypeRepository _mediaTypeRepository;
-    private readonly IPlaylistRepository _playlistRepository;
-    private readonly ITrackRepository _trackRepository;
-
-    private readonly IValidator<AlbumApiModel> _albumValidator;
-    private readonly IValidator<ArtistApiModel> _artistValidator;
-    private readonly IValidator<CustomerApiModel> _customerValidator;
-    private readonly IValidator<EmployeeApiModel> _employeeValidator;
-    private readonly IValidator<GenreApiModel> _genreValidator;
-    private readonly IValidator<InvoiceApiModel> _invoiceValidator;
-    private readonly IValidator<InvoiceLineApiModel> _invoiceLineValidator;
-    private readonly IValidator<MediaTypeApiModel> _mediaTypeValidator;
-    private readonly IValidator<PlaylistApiModel> _playlistValidator;
-    private readonly IValidator<TrackApiModel> _trackValidator;
-
-    private readonly IMemoryCache _cache;
-
-    private readonly IDistributedCache _distributedCache;
-
-    public ChinookSupervisor(IAlbumRepository albumRepository,
+public partial class ChinookSupervisor(IAlbumRepository albumRepository,
         IArtistRepository artistRepository,
         ICustomerRepository customerRepository,
         IEmployeeRepository employeeRepository,
@@ -54,33 +25,29 @@ public partial class ChinookSupervisor : IChinookSupervisor
         IValidator<MediaTypeApiModel> mediaTypeValidator,
         IValidator<PlaylistApiModel> playlistValidator,
         IValidator<TrackApiModel> trackValidator,
-        IMemoryCache memoryCache,
-        IDistributedCache distributedCache
-    )
-    {
-        _albumRepository = albumRepository;
-        _artistRepository = artistRepository;
-        _customerRepository = customerRepository;
-        _employeeRepository = employeeRepository;
-        _genreRepository = genreRepository;
-        _invoiceLineRepository = invoiceLineRepository;
-        _invoiceRepository = invoiceRepository;
-        _mediaTypeRepository = mediaTypeRepository;
-        _playlistRepository = playlistRepository;
-        _trackRepository = trackRepository;
+        IMapper mapper)
+    : IChinookSupervisor
+{
+    private readonly IAlbumRepository _albumRepository = albumRepository;
+    private readonly IArtistRepository _artistRepository = artistRepository;
+    private readonly ICustomerRepository _customerRepository = customerRepository;
+    private readonly IEmployeeRepository _employeeRepository = employeeRepository;
+    private readonly IGenreRepository _genreRepository = genreRepository;
+    private readonly IInvoiceLineRepository _invoiceLineRepository = invoiceLineRepository;
+    private readonly IInvoiceRepository _invoiceRepository = invoiceRepository;
+    private readonly IMediaTypeRepository _mediaTypeRepository = mediaTypeRepository;
+    private readonly IPlaylistRepository _playlistRepository = playlistRepository;
+    private readonly ITrackRepository _trackRepository = trackRepository;
 
-        _albumValidator = albumValidator;
-        _artistValidator = artistValidator;
-        _customerValidator = customerValidator;
-        _employeeValidator = employeeValidator;
-        _genreValidator = genreValidator;
-        _invoiceValidator = invoiceValidator;
-        _invoiceLineValidator = invoiceLineValidator;
-        _mediaTypeValidator = mediaTypeValidator;
-        _playlistValidator = playlistValidator;
-        _trackValidator = trackValidator;
-
-        _cache = memoryCache;
-        _distributedCache = distributedCache;
-    }
+    private readonly IValidator<AlbumApiModel> _albumValidator = albumValidator;
+    private readonly IValidator<ArtistApiModel> _artistValidator = artistValidator;
+    private readonly IValidator<CustomerApiModel> _customerValidator = customerValidator;
+    private readonly IValidator<EmployeeApiModel> _employeeValidator = employeeValidator;
+    private readonly IValidator<GenreApiModel> _genreValidator = genreValidator;
+    private readonly IValidator<InvoiceApiModel> _invoiceValidator = invoiceValidator;
+    private readonly IValidator<InvoiceLineApiModel> _invoiceLineValidator = invoiceLineValidator;
+    private readonly IValidator<MediaTypeApiModel> _mediaTypeValidator = mediaTypeValidator;
+    private readonly IValidator<PlaylistApiModel> _playlistValidator = playlistValidator;
+    private readonly IValidator<TrackApiModel> _trackValidator = trackValidator;
+    private readonly IMapper _mapper = mapper;
 }

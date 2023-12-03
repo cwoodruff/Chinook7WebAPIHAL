@@ -5,30 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Data.Repositories;
 
-public class ArtistRepository : IArtistRepository
+public class ArtistRepository(ChinookContext context) : IArtistRepository
 {
-    private readonly ChinookContext _context;
-
-    public ArtistRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
     private bool ArtistExists(int id) =>
-        _context.Artists.Any(a => a.Id == id);
+        context.Artists.Any(a => a.Id == id);
 
-    public void Dispose() => _context.Dispose();
+    public void Dispose() => context.Dispose();
 
     public List<Artist> GetAll() =>
-        _context.Artists.AsNoTrackingWithIdentityResolution().ToList();
+        context.Artists.Include(a => a.Albums).AsNoTrackingWithIdentityResolution().ToList();
 
     public Artist GetById(int id) =>
-        _context.Artists.Find(id);
+        context.Artists.Include(a => a.Albums).AsNoTrackingWithIdentityResolution().FirstOrDefault(a => a.Id == id);
 
     public Artist Add(Artist newArtist)
     {
-        _context.Artists.Add(newArtist);
-        _context.SaveChanges();
+        context.Artists.Add(newArtist);
+        context.SaveChanges();
         return newArtist;
     }
 
@@ -36,8 +29,8 @@ public class ArtistRepository : IArtistRepository
     {
         if (!ArtistExists(artist.Id))
             return false;
-        _context.Artists.Update(artist);
-        _context.SaveChanges();
+        context.Artists.Update(artist);
+        context.SaveChanges();
         return true;
     }
 
@@ -45,9 +38,9 @@ public class ArtistRepository : IArtistRepository
     {
         if (!ArtistExists(id))
             return false;
-        var toRemove = _context.Artists.Find(id);
-        _context.Artists.Remove(toRemove);
-        _context.SaveChanges();
+        var toRemove = context.Artists.Find(id);
+        context.Artists.Remove(toRemove);
+        context.SaveChanges();
         return true;
     }
 }
